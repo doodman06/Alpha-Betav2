@@ -75,43 +75,19 @@ class PokemonManager {
     
     }
     chooseMove() {
-        var currentMoves = [];
         console.log(this.activeEnemy);
-        var index = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, false);
-        console.log(index);
-            
+        var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, false);
+        console.log(bestMove);
 
-
-        var randomMoveList = [];
-        for (let i = 0; i < 4; i++) {
-            randomMoveList.push('|/choose move ' + (i + 1));
-        }
-        for(let i = 2; i < 7; i++) {
-            if(this.pokemonList[i - 1].alive) {
-                randomMoveList.push('|/choose switch ' + i);
-
-            }
-        }
-        //truncate index to bounds
-        if(index >= randomMoveList.length) {
-            index = randomMoveList.length - 1;
-        }
-        if(index < 0) {
-            index = 0;
-        }
-        let randomMove = randomMoveList[index];
-        randomMove = '|/choose switch Serperior'
-
-        return randomMove;
+        return bestMove;
 
     }
 
     forceSwitch() {
-        var i = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, true);
-        console.log(i);
-        i++;
-        i++;
-        return '|/choose switch ' + i;
+        var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, true);
+        console.log(bestMove);
+        
+        return bestMove;
     }
 
     alphaBeta(gameState, initialDepth, depth, alpha, beta, switchBool) {
@@ -128,13 +104,13 @@ class PokemonManager {
         var moveScores = [];
         if(!switchBool){
             gameState.myPokemonList[0].moves.forEach(move => {
-                moves.push(move);
+                moves.push('|/choose move ' + move);
             });
         }
     
         for(let i = 1; i < gameState.myPokemonList.length; i++) {
             if(gameState.myPokemonList[i].alive && gameState.myPokemonList[i].name != gameState.getMyActive().name && gameState.myPokemonList[i].hp > 0) {
-                moves.push('$SWITCH$ ' + i);
+                moves.push('|/choose switch ' + gameState.myPokemonList[i].name);
             }
         }
         for(let i = 0; i < moves.length; i++) {
@@ -155,14 +131,14 @@ class PokemonManager {
         }
         if(depth == initialDepth) {
             var max = -100000;
-            var maxIndex;
+            var bestMove;
             for(let i = 0; i < moveScores.length; i++) {
                 if(moveScores[i] > max) {
                     max = moveScores[i];
-                    maxIndex = i;
+                    bestMove = moves[i];
                 }
             }
-            return maxIndex;
+            return bestMove;
         }
 
         return v;
@@ -171,6 +147,7 @@ class PokemonManager {
 
     simulate(initialGameState, move) {
         var myPokemon = initialGameState.myPokemonList[0];
+        var moveName = move.split(' ')[2];
         var enemyPokemon;
         var gameStates = [];
         for(let i = 0; i < initialGameState.enemyPokemonList.length; i++) {
@@ -182,13 +159,13 @@ class PokemonManager {
         
         if(true) { 
             //we go first
-            if(move.includes('$SWITCH$')) { 
+            if(move.includes('|/choose switch')) { 
                 var learnsetData = Dex.species.getLearnsetData(Dex.toID(enemyPokemon.name));  
                 var moveList = [];
                 moveList = Object.keys(learnsetData.learnset);
                 for(let i = 0; i < moveList.length; i++) {
                     var newGameState = new gameState(initialGameState.myPokemonList, initialGameState.enemyPokemonList, initialGameState.activeEnemy);
-                    newGameState.switchMyActiveTo(newGameState.myPokemonList[parseInt(move.split('$SWITCH$ ')[1]) - 1].name);
+                    newGameState.switchMyActiveTo(moveName);
                     const result = calculate(
                         this.gen,
                         new Pokemon(this.gen, enemyPokemon.name),
@@ -240,7 +217,7 @@ class PokemonManager {
                     this.gen,
                     new Pokemon(this.gen, newGameState.getMyActive().name),
                     new Pokemon(this.gen, enemyPokemon.name),
-                    new Move(this.gen, move)
+                    new Move(this.gen, moveName)
                 )
                 var damage2;
                 if(Array.isArray(result2.damage)) {
