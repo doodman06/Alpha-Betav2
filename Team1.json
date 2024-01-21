@@ -1,0 +1,74 @@
+[
+    {
+        "name": "",
+        "species": "Gallade-Mega",
+        "item": "Galladite",
+        "ability": "Justified",
+        "gender": "M",
+        "nature": "Jolly",
+        "evs": { "hp": 224, "atk": 32, "def": 0, "spa": 0, "spd": 0, "spe": 252 },
+        "ivs": { "hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31 },
+        "level": 100,
+        "moves": [ "Swords Dance", "Shadow Sneak", "Psycho Cut", "Drain Punch" ]
+    },
+    {
+        "name": "",
+        "species": "Serperior",
+        "item": "Chesto Berry",
+        "ability": "Contrary",
+        "gender": "",
+        "nature": "Timid",
+        "evs": { "hp": 200, "atk": 0, "def": 44, "spa": 12, "spd": 0, "spe": 252 },
+        "ivs": { "hp": 31, "atk": 1, "def": 30, "spa": 31, "spd": 30, "spe": 30 },
+        "level": 100,
+        "moves": [ "Rest", "Glare", "Hidden Power Rock", "Leaf Storm" ]
+    },
+    {
+        "name": "",
+        "species": "Crawdaunt",
+        "item": "Life Orb",
+        "ability": "Adaptability",
+        "gender": "",
+        "nature": "Jolly",
+        "evs": { "hp": 0, "atk": 252, "def": 0, "spa": 0, "spd": 4, "spe": 252 },
+        "ivs": { "hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31 },
+        "level": 100,
+        "moves": [ "Swords Dance", "Aqua Jet", "Crabhammer", "Knock Off" ]
+    },
+    {
+        "name": "",
+        "species": "Excadrill",
+        "item": "Leftovers",
+        "ability": "Mold Breaker",
+        "gender": "",
+        "nature": "Adamant",
+        "evs": { "hp": 0, "atk": 128, "def": 0, "spa": 0, "spd": 176, "spe": 204 },
+        "ivs": { "hp": 31, "atk": 31, "def": 31, "spa": 31, "spd": 31, "spe": 31 },
+        "level": 100,
+        "moves": [ "Rapid Spin", "Substitute", "Iron Head", "Earthquake" ]
+    },
+    {
+        "name": "",
+        "species": "Zapdos",
+        "item": "Leftovers",
+        "ability": "Static",
+        "gender": "",
+        "nature": "Bold",
+        "evs": { "hp": 248, "atk": 0, "def": 236, "spa": 0, "spd": 0, "spe": 24 },
+        "ivs": { "hp": 31, "atk": 0, "def": 30, "spa": 31, "spd": 31, "spe": 31 },
+        "level": 100,
+        "moves": [ "Roost", "Hidden Power Ice", "Heat Wave", "Volt Switch" ]
+    },
+    {
+        "name": "",
+        "species": "Clefable",
+        "item": "Leftovers",
+        "ability": "Magic Guard",
+        "gender": "",
+        "nature": "Calm",
+        "evs": { "hp": 248, "atk": 0, "def": 200, "spa": 0, "spd": 56, "spe": 4 },
+        "ivs": { "hp": 31, "atk": 0, "def": 31, "spa": 31, "spd": 31, "spe": 31 },
+        "level": 100,
+        "moves": [ "Stealth Rock", "Soft-Boiled", "Healing Wish", "Moonblast" ]
+    }
+  ]
