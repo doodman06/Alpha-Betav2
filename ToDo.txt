@@ -1,0 +1,4 @@
+1/21/2024
+Initialy thought that PP wouldnt really be a factor to consider but was proved wrong today.
+Will need to implement tracking of PP.
+The issue is that the data that is sent only includes the pp of the active pokemon.
