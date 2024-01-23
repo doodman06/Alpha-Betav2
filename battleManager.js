@@ -4,10 +4,11 @@ const {calculate, Pokemon, Move, Generations} = require('@smogon/calc');
 class PokemonManager {
     constructor(jsonData, gen) {
         this.pokemonList = [];
+        this.pp  = new ppTracker();
         this.data = jsonData;
         this.enemyList = [];
         this.activeEnemy = null;
-        this.gameState = new gameState(this.pokemonList, this.enemyList, this.activeEnemy);
+        this.gameState = new gameState(this.pokemonList, this.enemyList, this.activeEnemy, this.pp);
 
         this.parseData(jsonData);
         this.gen = Generations.get(gen);
@@ -24,6 +25,13 @@ class PokemonManager {
         jsonData.side.pokemon.forEach(pokemon => {
             this.pokemonList.push(new myPokemon(pokemon.details, pokemon.condition, pokemon.moves, pokemon.stats));
         });
+        this.pp = new ppTracker();
+        if('active' in jsonData) {
+            console.log(jsonData.active[0])
+            jsonData.active[0].moves.forEach( moves => {
+                this.pp.addMove(moves.move, moves.pp);
+            });
+        }
         //console.log(this.pokemonList);
     }
     updateData(jsonData) {
@@ -56,7 +64,7 @@ class PokemonManager {
 
 
     updateGameState() {
-        this.gameState = new gameState(this.pokemonList, this.enemyList, this.activeEnemy);
+        this.gameState = new gameState(this.pokemonList, this.enemyList, this.activeEnemy, this.pp);
     }
     chooseRandomMove() {
         //if in a teampreview use default loudout
@@ -104,12 +112,15 @@ class PokemonManager {
         var moveScores = [];
         if(!switchBool){
             gameState.myPokemonList[0].moves.forEach(move => {
-                moves.push('|/choose move ' + move);
+                //add the move as an option if there is enough pp
+                if(gameState.isMoveUsable(move)) {
+                    moves.push('|/choose move ' + move);
+                }
             });
         }
     
         for(let i = 1; i < gameState.myPokemonList.length; i++) {
-            if(gameState.myPokemonList[i].alive && gameState.myPokemonList[i].name != gameState.getMyActive().name && gameState.myPokemonList[i].hp > 0) {
+            if(gameState.myPokemonList[i].alive && gameState.myPokemonList[i].name != gameState.getMyActive().name && gameState.myPokemonList[i].hp > 0 ) {
                 moves.push('|/choose switch ' + gameState.myPokemonList[i].name);
             }
         }
@@ -164,7 +175,7 @@ class PokemonManager {
                 var moveList = [];
                 moveList = Object.keys(learnsetData.learnset);
                 for(let i = 0; i < moveList.length; i++) {
-                    var newGameState = new gameState(initialGameState.myPokemonList, initialGameState.enemyPokemonList, initialGameState.activeEnemy);
+                    var newGameState = new gameState(initialGameState.myPokemonList, initialGameState.enemyPokemonList, initialGameState.activeEnemy, initialGameState.pp);
                     newGameState.switchMyActiveTo(moveName);
                     const result = calculate(
                         this.gen,
@@ -205,7 +216,7 @@ class PokemonManager {
                 }  else {
                     damage = result.damage;
                 }
-                var newGameState = new gameState(initialGameState.myPokemonList, initialGameState.enemyPokemonList, initialGameState.activeEnemy);
+                var newGameState = new gameState(initialGameState.myPokemonList, initialGameState.enemyPokemonList, initialGameState.activeEnemy, initialGameState.pp);
                 //console.log(damage);
                 //console.log(myPokemon.hp);
                 newGameState.updateMyPokemon(myPokemon.name, myPokemon.hp - damage);
@@ -225,6 +236,7 @@ class PokemonManager {
                 }  else {
                     damage2 = result2.damage;
                 }
+                newGameState.decrementPP(moveName);
                 newGameState.updateEnemy(enemyPokemon.name, enemyPokemon.hp - (damage2 / Dex.species.get(enemyPokemon.name).baseStats.hp));
                 if(newGameState.enemyPokemonList[0].hp <= 0) {
                     newGameState.enemyPokemonList[0].alive = false;
@@ -295,16 +307,60 @@ class enemyPokemon {
         
     };
 }
+class ppTracker {
+    constructor() {
+        this.moves = [];
+        this.Mypp = [];
+    }
+
+    addMove(move, pp) {
+        this.moves.push(move);
+        this.Mypp.push(pp);
+    }
+    getPP(move) {
+        console.log("Now")
+        console.log(this.moves);
+        for(let i = 0; i < this.moves.length; i++) {
+            if(this.moves[i] == move) {
+                return this.Mypp[i];
+            }
+        }
+        return 10;
+    }
+    decrementPP(move) {
+        for(let i = 0; i < this.moves.length; i++) {
+            if(this.moves[i] == move) {
+                this.Mypp[i] = this.Mypp[i] - 1;
+            }
+        }
+    }
+}
 
 class gameState {
-    constructor(myPokemonList, enemyPokemonList, activeEnemy) {
+    constructor(myPokemonList, enemyPokemonList, activeEnemy, pp) {
         //need to create new objects withour reference to old ones
 
 
         this.myPokemonList = JSON.parse(JSON.stringify(myPokemonList));
         this.enemyPokemonList = JSON.parse(JSON.stringify(enemyPokemonList));
         this.activeEnemy = JSON.parse(JSON.stringify(activeEnemy));
+        this.pp = new ppTracker();
+        this.pp.moves = JSON.parse(JSON.stringify(pp.moves));
+        this.pp.Mypp = JSON.parse(JSON.stringify(pp.Mypp));
 
+    }
+
+    decrementPP(move) {
+        this.pp.decrementPP(move);
+    }
+
+    isMoveUsable(move) {
+        console.log(this.pp)
+        if(this.pp.getPP(move) > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     printState() {  
@@ -404,4 +460,6 @@ class gameState {
         });
     }
 }
+
+
 module.exports = PokemonManager;
