@@ -6,3 +6,9 @@ The issue is that the data that is sent only includes the pp of the active pokem
 1/23/2024
 Tried adding a PP tracker to the game state that tracks the PP of the active pokemon.
 Played a few games and this semmed good for now,  but will do more testing to see if this is enough or if tracking is necessary for all pokemon.
+
+1/17/2024
+Altered the way being forced to switch is stored. It is now stored as a part of the gameState. This lets me stop passing it on as a parameter to alpha beta.
+Fixed a bug where the moves pp was not being reported becasue the name of the move was stored in the PP tracker but not the id. ie (Leaf Storm instead of leafstorm)
+It also allows the forceSwitch to be set in the simulation.
+A current behaviour of the AI that is odd is that it will sometimes use a healing move at full HP on the worse case assumption that it will be damaged.

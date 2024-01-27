@@ -29,7 +29,7 @@ class PokemonManager {
         if('active' in jsonData) {
             console.log(jsonData.active[0])
             jsonData.active[0].moves.forEach( moves => {
-                this.pp.addMove(moves.move, moves.pp);
+                this.pp.addMove(moves.id, moves.pp);
             });
         }
         //console.log(this.pokemonList);
@@ -92,13 +92,15 @@ class PokemonManager {
     }
 
     forceSwitch() {
-        var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, true);
+        this.gameState.setForceSwitch(true);
+
+        var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, this.gameState.isForceSwitch());
         console.log(bestMove);
         
         return bestMove;
     }
 
-    alphaBeta(gameState, initialDepth, depth, alpha, beta, switchBool) {
+    alphaBeta(gameState, initialDepth, depth, alpha, beta) {
         if(depth == 0 || gameState.myPokemonList.length == 0 || gameState.enemyPokemonList.length == 0) {
            // console.log("evaluate state");
             //console.log(gameState.evaluateState());
@@ -110,10 +112,11 @@ class PokemonManager {
         var v = -100000;
         var moves = [];
         var moveScores = [];
-        if(!switchBool){
+        if(!gameState.isForceSwitch()) {
             gameState.myPokemonList[0].moves.forEach(move => {
                 //add the move as an option if there is enough pp
                 if(gameState.isMoveUsable(move)) {
+                    console.log(move + " is added ")
                     moves.push('|/choose move ' + move);
                 }
             });
@@ -127,11 +130,7 @@ class PokemonManager {
         for(let i = 0; i < moves.length; i++) {
             var newGameState = gameState;
             var simGameState = this.simulate(newGameState, moves[i]);
-            if(simGameState.isMyActiveAlive()) {
-                v = Math.max(v, this.alphaBeta(simGameState, initialDepth, depth - 1, alpha, beta, false));
-            } else {
-                v = Math.max(v, this.alphaBeta(simGameState, initialDepth, depth - 1, alpha, beta, true));
-            }
+            v = Math.max(v, this.alphaBeta(simGameState, initialDepth, depth - 1, alpha, beta));
             if(depth == initialDepth) {
                 moveScores.push(v);
             }
@@ -193,7 +192,7 @@ class PokemonManager {
                     newGameState.updateMyPokemon(newGameState.getMyActive().name, myPokemon.hp - damage);
                     if(newGameState.myPokemonList[0].hp <= 0) {
                         newGameState.myPokemonList[0].alive = false;
-                        newGameState.switchMyActive();
+                        newGameState.setForceSwitch(true);
                     }  
                     gameStates.push(newGameState);
                 }
@@ -222,7 +221,7 @@ class PokemonManager {
                 newGameState.updateMyPokemon(myPokemon.name, myPokemon.hp - damage);
                 if(newGameState.myPokemonList[0].hp <= 0) {
                     newGameState.myPokemonList[0].alive = false;
-                    newGameState.switchMyActive();
+                    newGameState.setForceSwitch(true);
                 }
                 const result2 = calculate(  
                     this.gen,
@@ -339,6 +338,7 @@ class ppTracker {
 class gameState {
     constructor(myPokemonList, enemyPokemonList, activeEnemy, pp) {
         //need to create new objects withour reference to old ones
+        this.forceSwitch = false;
 
 
         this.myPokemonList = JSON.parse(JSON.stringify(myPokemonList));
@@ -350,6 +350,14 @@ class gameState {
 
     }
 
+    setForceSwitch(bool) {
+        this.forceSwitch = bool;
+    }
+
+    isForceSwitch() {
+        return this.forceSwitch;
+    }
+
     decrementPP(move) {
         this.pp.decrementPP(move);
     }
@@ -357,8 +365,10 @@ class gameState {
     isMoveUsable(move) {
         console.log(this.pp)
         if(this.pp.getPP(move) > 0) {
+            console.log("move usable");
             return true;
         } else {
+            console.log("move not usable");
             return false;
         }
     }
