@@ -197,7 +197,7 @@ class PokemonManager {
                     )
                     var damage;
                     if(Array.isArray(result.damage)) {
-                        damage = result.damage[Math.floor(result.damage.length / 2)];
+                        damage = result.damage[result.damage.length - 1];
                     }  else {
                         damage = result.damage;
                     }
@@ -224,7 +224,7 @@ class PokemonManager {
                 )
                 var damage;
                 if(Array.isArray(result.damage)) {
-                    damage = result.damage[Math.floor(result.damage.length / 2)];
+                    damage = result.damage[result.damage.length - 1];
                 }  else {
                     damage = result.damage;
                 }
@@ -244,7 +244,7 @@ class PokemonManager {
                 )
                 var damage2;
                 if(Array.isArray(result2.damage)) {
-                    damage2 = result2.damage[Math.floor(result2.damage.length / 2)];
+                    damage2 = result2.damage[0];
                 }  else {
                     damage2 = result2.damage;
                 }
