@@ -13,14 +13,20 @@ class PokemonManager {
         this.parseData(jsonData);
         this.gen = Generations.get(gen);
     }
-
+    /**
+     * Initializes the enemy pokemon list
+     * @param {string[]} enemyList 
+     */
     initializeEnemy(enemyList){
         enemyList.forEach(pokemon => {
             this.enemyList.push(new enemyPokemon(pokemon));
         });
         //console.log(this.enemyList);
     }
-
+    /**
+     * Parses the JSON data received from the server
+     * @param {JSON} jsonData 
+     */
     parseData(jsonData) {
         jsonData.side.pokemon.forEach(pokemon => {
             this.pokemonList.push(new myPokemon(pokemon.details, pokemon.condition, pokemon.moves, pokemon.stats));
@@ -34,6 +40,10 @@ class PokemonManager {
         }
         //console.log(this.pokemonList);
     }
+    /**
+     * Updates the game state with new data
+     * @param {JSON} jsonData 
+     */
     updateData(jsonData) {
         this.pokemonList = [];
         this.data = jsonData;
@@ -41,6 +51,11 @@ class PokemonManager {
         this.updateGameState();
     }
 
+    /**
+     * Updates the HP of the enemy pokemon
+     * @param {string} pokemon 
+     * @param {int} newHP 
+     */
     updateEnemy(pokemon, newHP) {
         this.enemyList.forEach(enemy => {
             if(enemy.name == pokemon) {
@@ -50,6 +65,10 @@ class PokemonManager {
         this.updateGameState();
         this.gameState.printState();
     }
+    /**
+     * Switches the active enemy pokemon
+     * @param {string} pokemon 
+     */
     updateActiveEnemy(pokemon) {
         this.enemyList.forEach(enemy => {
             if(enemy.name == pokemon) {
@@ -61,6 +80,12 @@ class PokemonManager {
 
     }
 
+    /**
+     * Updates the stat boost of the enemy pokemon
+     * @param {string} pokemon 
+     * @param {string} stat 
+     * @param {int} newBoost 
+     */
     updateEnemyBoost(pokemon, stat, newBoost) {
         this.enemyList.forEach(enemy => {
             if(enemy.name == pokemon) {
@@ -74,6 +99,9 @@ class PokemonManager {
 
 
 
+    /**
+     * Updates the game state with the currentnly stored data
+     */
     updateGameState() {
         this.gameState = new gameState(this.pokemonList, this.enemyList, this.activeEnemy, this.pp);
     }

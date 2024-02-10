@@ -19,3 +19,6 @@ Added tracking of enemy stat boosts.
 2/10/2024
 Adjust damage calcualtions to use worse case result. When an array of damage numbers is returned the AI will assume worse case now as opposed to using the median result.
 When an enemy move is calculated it will use the higheest value and when the AI move is calculated it will use the lowest value.
+
+2/10/2024
+Added some JSDoc comments
