@@ -2,6 +2,11 @@ const {Dex} = require('pokemon-showdown');
 const {calculate, Pokemon, Move, Generations} = require('@smogon/calc');
 
 class PokemonManager {
+    /**
+     * Initializes the Pokemon Manager and game state
+     * @param {JSON} jsonData  JSON data received from the server
+     * @param {number} gen The Generation of Pokemon of the current battle
+     */
     constructor(jsonData, gen) {
         this.pokemonList = [];
         this.pp  = new ppTracker();
@@ -15,7 +20,7 @@ class PokemonManager {
     }
     /**
      * Initializes the enemy pokemon list
-     * @param {string[]} enemyList 
+     * @param {string[]} enemyList List of enemy pokemon
      */
     initializeEnemy(enemyList){
         enemyList.forEach(pokemon => {
@@ -25,7 +30,7 @@ class PokemonManager {
     }
     /**
      * Parses the JSON data received from the server
-     * @param {JSON} jsonData 
+     * @param {JSON} jsonData JSON Data received from the server
      */
     parseData(jsonData) {
         jsonData.side.pokemon.forEach(pokemon => {
@@ -42,7 +47,7 @@ class PokemonManager {
     }
     /**
      * Updates the game state with new data
-     * @param {JSON} jsonData 
+     * @param {JSON} jsonData JSON Data received from the server
      */
     updateData(jsonData) {
         this.pokemonList = [];
@@ -53,8 +58,8 @@ class PokemonManager {
 
     /**
      * Updates the HP of the enemy pokemon
-     * @param {string} pokemon 
-     * @param {int} newHP 
+     * @param {string} pokemon Name of the enemy pokemon
+     * @param {int} newHP New HP of the enemy pokemon
      */
     updateEnemy(pokemon, newHP) {
         this.enemyList.forEach(enemy => {
@@ -67,7 +72,7 @@ class PokemonManager {
     }
     /**
      * Switches the active enemy pokemon
-     * @param {string} pokemon 
+     * @param {string} pokemon Name of the new active enemy pokemon
      */
     updateActiveEnemy(pokemon) {
         this.enemyList.forEach(enemy => {
@@ -82,9 +87,9 @@ class PokemonManager {
 
     /**
      * Updates the stat boost of the enemy pokemon
-     * @param {string} pokemon 
-     * @param {string} stat 
-     * @param {int} newBoost 
+     * @param {string} pokemon Name of the enemy pokemon
+     * @param {string} stat Stat to be updated
+     * @param {int} newBoost Number of boost stages to be added
      */
     updateEnemyBoost(pokemon, stat, newBoost) {
         this.enemyList.forEach(enemy => {
@@ -121,6 +126,10 @@ class PokemonManager {
 
     
     }
+    /**
+     * Selects the move to be used
+     * @returns {string} move to be used
+     */
     chooseMove() {
         console.log(this.activeEnemy);
         var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, false);
@@ -130,6 +139,10 @@ class PokemonManager {
 
     }
 
+    /**
+     * Selects the Pokemon to switch to when a switch is mandatory
+     * @returns {string} move to be used 
+     */
     forceSwitch() {
         this.gameState.setForceSwitch(true);
 

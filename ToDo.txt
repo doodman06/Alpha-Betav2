@@ -22,3 +22,6 @@ When an enemy move is calculated it will use the higheest value and when the AI 
 
 2/10/2024
 Added some JSDoc comments
+
+2/10/2024
+Added JSDoc parameter descriptions
