@@ -12,3 +12,6 @@ Altered the way being forced to switch is stored. It is now stored as a part of 
 Fixed a bug where the moves pp was not being reported becasue the name of the move was stored in the PP tracker but not the id. ie (Leaf Storm instead of leafstorm)
 It also allows the forceSwitch to be set in the simulation.
 A current behaviour of the AI that is odd is that it will sometimes use a healing move at full HP on the worse case assumption that it will be damaged.
+
+2/10/2024
+Added tracking of enemy stat boosts.

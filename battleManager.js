@@ -61,6 +61,17 @@ class PokemonManager {
 
     }
 
+    updateEnemyBoost(pokemon, stat, newBoost) {
+        this.enemyList.forEach(enemy => {
+            if(enemy.name == pokemon) {
+                enemy.addStatBoost(stat, parseInt(newBoost));
+                console.log(enemy.statBoosts[stat]);
+            }
+        });
+
+        this.updateGameState();
+    }
+
 
 
     updateGameState() {
@@ -178,7 +189,9 @@ class PokemonManager {
                     newGameState.switchMyActiveTo(moveName);
                     const result = calculate(
                         this.gen,
-                        new Pokemon(this.gen, enemyPokemon.name),
+                        new Pokemon(this.gen, enemyPokemon.name, {
+                            boosts: enemyPokemon.statBoosts
+                        }),
                         new Pokemon(this.gen, newGameState.getMyActive().name),
                         new Move(this.gen, moveList[i])
                     )
@@ -303,8 +316,19 @@ class enemyPokemon {
         this.types = Dex.species.get(this.name).types;
         this.maxHP = 100;
         this.hp = 100;
+        this.statBoosts = {atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
         
     };
+
+    addStatBoost(stat, boost) {
+        this.statBoosts[stat] += boost;
+        if(this.statBoosts[stat] > 6) {
+            this.statBoosts[stat] = 6;
+        }
+        if(this.statBoosts[stat] < -6) {
+            this.statBoosts[stat] = -6;
+        }
+    }
 }
 class ppTracker {
     constructor() {
