@@ -13,7 +13,7 @@ class PokemonManager {
         this.data = jsonData;
         this.enemyList = [];
         this.activeEnemy = null;
-        this.gameState = new gameState(this.pokemonList, this.enemyList, this.activeEnemy, this.pp);
+        this.gameState = new gameState();
 
         this.parseData(jsonData);
         this.gen = Generations.get(gen);
@@ -108,7 +108,12 @@ class PokemonManager {
      * Updates the game state with the currentnly stored data
      */
     updateGameState() {
-        this.gameState = new gameState(this.pokemonList, this.enemyList, this.activeEnemy, this.pp);
+        //this.gameState = new gameState(this.pokemonList, this.enemyList, this.activeEnemy, this.pp);
+        this.gameState.setMyPokemonList(this.pokemonList);
+        this.gameState.setEnemyPokemonList(this.enemyList);
+        this.gameState.setActiveEnemy(this.activeEnemy);
+        this.gameState.setPP(this.pp);
+
     }
     chooseRandomMove() {
         //if in a teampreview use default loudout
@@ -146,6 +151,7 @@ class PokemonManager {
     forceSwitch() {
         this.gameState.setForceSwitch(true);
 
+        //TODO: think i can remove the last parameter
         var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, this.gameState.isForceSwitch());
         console.log(bestMove);
         
@@ -241,7 +247,7 @@ class PokemonManager {
                 var moveList = [];
                 moveList = Object.keys(learnsetData.learnset);
                 for(let i = 0; i < moveList.length; i++) {
-                    var newGameState = new gameState(initialGameState.myPokemonList, initialGameState.enemyPokemonList, initialGameState.activeEnemy, initialGameState.pp);
+                    var newGameState = initialGameState.clone();
                     newGameState.switchMyActiveTo(moveName);
                     const result = calculate(
                         this.gen,
@@ -284,7 +290,7 @@ class PokemonManager {
                 }  else {
                     damage = result.damage;
                 }
-                var newGameState = new gameState(initialGameState.myPokemonList, initialGameState.enemyPokemonList, initialGameState.activeEnemy, initialGameState.pp);
+                var newGameState = initialGameState.clone();
                 //console.log(damage);
                 //console.log(myPokemon.hp);
                 newGameState.updateMyPokemon(myPokemon.name, myPokemon.hp - damage);
@@ -449,6 +455,7 @@ class ppTracker {
 }
 
 class gameState {
+    
     /**
      * Initializes a new gameState object
      * @param {myPokemon[]} myPokemonList the list of the AI's pokemon
@@ -456,18 +463,54 @@ class gameState {
      * @param {string} activeEnemy the name of the currently active enemy pokemon
      * @param {ppTracker} pp the pp tracker for the AI's pokemon
      */
-    constructor(myPokemonList, enemyPokemonList, activeEnemy, pp) {
+    constructor() {
         //need to create new objects withour reference to old ones
         this.forceSwitch = false;
 
+        this.myPokemonList = [];
+        this.enemyPokemonList = [];
+        this.activeEnemy = null;
+        this.pp = new ppTracker();
 
-        this.myPokemonList = JSON.parse(JSON.stringify(myPokemonList));
+
+        /* this.myPokemonList = JSON.parse(JSON.stringify(myPokemonList));
         this.enemyPokemonList = JSON.parse(JSON.stringify(enemyPokemonList));
         this.activeEnemy = JSON.parse(JSON.stringify(activeEnemy));
         this.pp = new ppTracker();
         this.pp.moves = JSON.parse(JSON.stringify(pp.moves));
-        this.pp.Mypp = JSON.parse(JSON.stringify(pp.Mypp));
+        this.pp.Mypp = JSON.parse(JSON.stringify(pp.Mypp)); */
 
+    }
+
+    //setters and getters for variables
+
+    setMyPokemonList(myPokemonList) {
+        this.myPokemonList = myPokemonList;
+    }
+
+    setEnemyPokemonList(enemyPokemonList) {
+        this.enemyPokemonList = enemyPokemonList;
+    }
+
+    setActiveEnemy(activeEnemy) {
+        this.activeEnemy = activeEnemy;
+    }
+    setPP(pp) {
+        this.pp.moves = pp.moves;
+        this.pp.Mypp = pp.Mypp;
+    }
+
+
+
+    //clone without reference
+    clone() {
+        var newGameState = new gameState();
+        newGameState.myPokemonList = JSON.parse(JSON.stringify(this.myPokemonList));
+        newGameState.enemyPokemonList = JSON.parse(JSON.stringify(this.enemyPokemonList));
+        newGameState.activeEnemy = JSON.parse(JSON.stringify(this.activeEnemy));
+        newGameState.pp.moves = JSON.parse(JSON.stringify(this.pp.moves));
+        newGameState.pp.Mypp = JSON.parse(JSON.stringify(this.pp.Mypp));
+        return newGameState;
     }
 
     /**
