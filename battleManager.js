@@ -8,13 +8,8 @@ class PokemonManager {
      * @param {number} gen The Generation of Pokemon of the current battle
      */
     constructor(jsonData, gen) {
-        this.pokemonList = [];
-        this.pp  = new ppTracker();
         this.data = jsonData;
-        this.enemyList = [];
-        this.activeEnemy = null;
         this.gameState = new gameState();
-
         this.parseData(jsonData);
         this.gen = Generations.get(gen);
     }
@@ -24,7 +19,7 @@ class PokemonManager {
      */
     initializeEnemy(enemyList){
         enemyList.forEach(pokemon => {
-            this.enemyList.push(new enemyPokemon(pokemon));
+            this.gameState.addEnemyPokemon(new enemyPokemon(pokemon));
         });
         //console.log(this.enemyList);
     }
@@ -34,13 +29,13 @@ class PokemonManager {
      */
     parseData(jsonData) {
         jsonData.side.pokemon.forEach(pokemon => {
-            this.pokemonList.push(new myPokemon(pokemon.details, pokemon.condition, pokemon.moves, pokemon.stats));
+            this.gameState.addMyPokemon(new myPokemon(pokemon.details, pokemon.condition, pokemon.moves, pokemon.stats));
         });
-        this.pp = new ppTracker();
+        this.gameState.resetPP();
         if('active' in jsonData) {
             console.log(jsonData.active[0])
             jsonData.active[0].moves.forEach( moves => {
-                this.pp.addMove(moves.id, moves.pp);
+                this.gameState.addPPMove(moves.id, moves.pp);
             });
         }
         //console.log(this.pokemonList);
@@ -50,11 +45,14 @@ class PokemonManager {
      * @param {JSON} jsonData JSON Data received from the server
      */
     updateData(jsonData) {
-        this.pokemonList = [];
+        this.gameState.setMyPokemonList([]);
         this.data = jsonData;
         this.parseData(jsonData);
         this.updateGameState();
     }
+
+    updateGameState() {}
+
 
     /**
      * Updates the HP of the enemy pokemon
@@ -62,11 +60,7 @@ class PokemonManager {
      * @param {int} newHP New HP of the enemy pokemon
      */
     updateEnemy(pokemon, newHP) {
-        this.enemyList.forEach(enemy => {
-            if(enemy.name == pokemon) {
-                enemy.hp = parseInt(newHP);
-            }
-        });
+        this.gameState.updateEnemy(pokemon, newHP);
         this.updateGameState();
         this.gameState.printState();
     }
@@ -75,11 +69,7 @@ class PokemonManager {
      * @param {string} pokemon Name of the new active enemy pokemon
      */
     updateActiveEnemy(pokemon) {
-        this.enemyList.forEach(enemy => {
-            if(enemy.name == pokemon) {
-                this.activeEnemy = enemy.name;
-            }
-        });
+        this.gameState.switchEnemyActiveTo(pokemon);
         this.updateGameState();
         this.gameState.printState();
 
@@ -92,29 +82,13 @@ class PokemonManager {
      * @param {int} newBoost Number of boost stages to be added
      */
     updateEnemyBoost(pokemon, stat, newBoost) {
-        this.enemyList.forEach(enemy => {
-            if(enemy.name == pokemon) {
-                enemy.addStatBoost(stat, parseInt(newBoost));
-                console.log(enemy.statBoosts[stat]);
-            }
-        });
+        this.gameState.updateEnemyBoost(pokemon, stat, newBoost);
 
         this.updateGameState();
     }
 
 
 
-    /**
-     * Updates the game state with the currentnly stored data
-     */
-    updateGameState() {
-        //this.gameState = new gameState(this.pokemonList, this.enemyList, this.activeEnemy, this.pp);
-        this.gameState.setMyPokemonList(this.pokemonList);
-        this.gameState.setEnemyPokemonList(this.enemyList);
-        this.gameState.setActiveEnemy(this.activeEnemy);
-        this.gameState.setPP(this.pp);
-
-    }
     chooseRandomMove() {
         //if in a teampreview use default loudout
         if(this.data.teamPreview) {
@@ -136,6 +110,7 @@ class PokemonManager {
      * @returns {string} move to be used
      */
     chooseMove() {
+        this.gameState.setForceSwitch(false);
         console.log(this.activeEnemy);
         var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, false);
         console.log(bestMove);
@@ -209,6 +184,7 @@ class PokemonManager {
         if(depth == initialDepth) {
             var max = -100000;
             var bestMove;
+            console.log(moves);
             for(let i = 0; i < moveScores.length; i++) {
                 if(moveScores[i] > max) {
                     max = moveScores[i];
@@ -487,6 +463,14 @@ class gameState {
     setMyPokemonList(myPokemonList) {
         this.myPokemonList = myPokemonList;
     }
+    
+    addMyPokemon(pokemon) {
+        this.myPokemonList.push(pokemon);
+    }
+
+    addEnemyPokemon(pokemon) {
+        this.enemyPokemonList.push(pokemon);
+    }
 
     setEnemyPokemonList(enemyPokemonList) {
         this.enemyPokemonList = enemyPokemonList;
@@ -498,6 +482,14 @@ class gameState {
     setPP(pp) {
         this.pp.moves = pp.moves;
         this.pp.Mypp = pp.Mypp;
+    }
+
+    addPPMove(move, pp) {
+        this.pp.addMove(move, pp);
+    }
+
+    resetPP() {
+        this.pp = new ppTracker();
     }
 
 
@@ -694,6 +686,21 @@ class gameState {
         this.myPokemonList.forEach(myPokemon => {
             if(myPokemon.name == pokemon) {
                 myPokemon.hp = parseInt(newHP);
+            }
+        });
+    }
+
+    /**
+     * Updates the stat boost of the enemy pokemon
+     * @param {string} pokemon Name of the enemy pokemon
+     * @param {string} stat Stat to be updated
+     * @param {int} newBoost Number of boost stages to be added
+     */
+    updateEnemyBoost(pokemon, stat, newBoost) {
+        this.enemyPokemonList.forEach(enemy => {
+            if(enemy.name == pokemon) {
+                enemy.addStatBoost(stat, parseInt(newBoost));
+                console.log(enemy.statBoosts[stat]);
             }
         });
     }
