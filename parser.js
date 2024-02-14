@@ -75,15 +75,18 @@ exports.parse = {
 		}
 		for(let i = 0; i < spl.length; i++){
 			if(spl[i] == '-damage' && spl[i + 1].includes('p1')){
-				pokemonManager.updateEnemy(spl[i + 1].split(' ')[1], spl[i + 2].split('/')[0]);
+				//pokemonManager.updateEnemy(spl[i + 1].split(' ')[1], spl[i + 2].split('/')[0]);
+				pokemonManager.updateFromTurn('-damage', spl[i + 1].split(' ')[1], spl[i + 2].split('/')[0]);
 				
 			}
 			if(spl[i] == "switch" && spl[i + 1].includes('p1')){
-				pokemonManager.updateActiveEnemy(spl[i + 1].split(' ')[1]);
+				//pokemonManager.updateActiveEnemy(spl[i + 1].split(' ')[1]);
+				pokemonManager.updateFromTurn("switch", spl[i + 1].split(' ')[1]);
 				
 			}
 			if(spl[i] == "-boost" && spl[i + 1].includes('p1')){
-				pokemonManager.updateEnemyBoost(spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
+				//pokemonManager.updateEnemyBoost(spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
+				pokemonManager.updateFromTurn("-boost", spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
 			}
 
 			if(spl[i] == "turn") {

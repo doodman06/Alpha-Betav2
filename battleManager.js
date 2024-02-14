@@ -48,45 +48,25 @@ class PokemonManager {
         this.gameState.setMyPokemonList([]);
         this.data = jsonData;
         this.parseData(jsonData);
-        this.updateGameState();
-    }
-
-    updateGameState() {}
-
-
-    /**
-     * Updates the HP of the enemy pokemon
-     * @param {string} pokemon Name of the enemy pokemon
-     * @param {int} newHP New HP of the enemy pokemon
-     */
-    updateEnemy(pokemon, newHP) {
-        this.gameState.updateEnemy(pokemon, newHP);
-        this.updateGameState();
-        this.gameState.printState();
-    }
-    /**
-     * Switches the active enemy pokemon
-     * @param {string} pokemon Name of the new active enemy pokemon
-     */
-    updateActiveEnemy(pokemon) {
-        this.gameState.switchEnemyActiveTo(pokemon);
-        this.updateGameState();
-        this.gameState.printState();
-
     }
 
     /**
-     * Updates the stat boost of the enemy pokemon
-     * @param {string} pokemon Name of the enemy pokemon
-     * @param {string} stat Stat to be updated
-     * @param {int} newBoost Number of boost stages to be added
+     * Apply the effect of the turn to the game state
+     * @param {string} effect the effect of the turn
+     * @param {string} pokemon the name of the pokemon 
+     * @param {string|number|undefined} details the details of the effect, either the damage or stat, can be undefined
+     * @param {number|undefined} extra the stage of boost, can be undefined
      */
-    updateEnemyBoost(pokemon, stat, newBoost) {
-        this.gameState.updateEnemyBoost(pokemon, stat, newBoost);
+    updateFromTurn(effect, pokemon, details, extra) {
+        if(effect == '-damage') {
+           this.gameState.updateEnemy(pokemon, details);
+        } else if(effect == '-boost') {
+            this.gameState.updateEnemyBoost(pokemon, details, extra);
+        } else if(effect == 'switch') {
+            this.gameState.switchEnemyActiveTo(pokemon);
+        }
 
-        this.updateGameState();
     }
-
 
 
     chooseRandomMove() {
@@ -111,7 +91,8 @@ class PokemonManager {
      */
     chooseMove() {
         this.gameState.setForceSwitch(false);
-        console.log(this.activeEnemy);
+        console.log("Active Enemy");
+        console.log(this.gameState.activeEnemy);
         var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, false);
         console.log(bestMove);
 
@@ -494,7 +475,10 @@ class gameState {
 
 
 
-    //clone without reference
+    /**
+     * Clones the current gameState object without reference
+     * @returns {gameState} a new gameState object with the same values as the current one
+     */
     clone() {
         var newGameState = new gameState();
         newGameState.myPokemonList = JSON.parse(JSON.stringify(this.myPokemonList));
@@ -558,7 +542,7 @@ class gameState {
         this.enemyPokemonList.forEach(pokemon => {
             console.log(pokemon.name + " " + pokemon.hp + "/" + pokemon.maxHP);
         });
-        console.log("Active Enemy: " + this.activeEnemy.name);
+        console.log("Active Enemy: " + this.activeEnemy);
     }
 
     /**
