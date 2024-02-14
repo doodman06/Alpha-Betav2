@@ -27,7 +27,7 @@ var enemysaved = false;
 var enemyName = [];
 var roomId;
 var gen;
-var pokemonManager = null;
+var battleManager = null;
 
 
 
@@ -69,28 +69,28 @@ exports.parse = {
 				}
 			}
 			if(enemyName.length == 6) {
-				pokemonManager.initializeEnemy(enemyName);
+				battleManager.initializeEnemy(enemyName);
 				battlestarted = true;
 			}
 		}
 		for(let i = 0; i < spl.length; i++){
 			if(spl[i] == '-damage' && spl[i + 1].includes('p1')){
-				//pokemonManager.updateEnemy(spl[i + 1].split(' ')[1], spl[i + 2].split('/')[0]);
-				pokemonManager.updateFromTurn('-damage', spl[i + 1].split(' ')[1], spl[i + 2].split('/')[0]);
+				//battleManager.updateEnemy(spl[i + 1].split(' ')[1], spl[i + 2].split('/')[0]);
+				battleManager.updateFromTurn('-damage', spl[i + 1].split(' ')[1], spl[i + 2].split('/')[0]);
 				
 			}
 			if(spl[i] == "switch" && spl[i + 1].includes('p1')){
-				//pokemonManager.updateActiveEnemy(spl[i + 1].split(' ')[1]);
-				pokemonManager.updateFromTurn("switch", spl[i + 1].split(' ')[1]);
+				//battleManager.updateActiveEnemy(spl[i + 1].split(' ')[1]);
+				battleManager.updateFromTurn("switch", spl[i + 1].split(' ')[1]);
 				
 			}
 			if(spl[i] == "-boost" && spl[i + 1].includes('p1')){
-				//pokemonManager.updateEnemyBoost(spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
-				pokemonManager.updateFromTurn("-boost", spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
+				//battleManager.updateEnemyBoost(spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
+				battleManager.updateFromTurn("-boost", spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
 			}
 
 			if(spl[i] == "turn") {
-				var move = pokemonManager.chooseMove();
+				var move = battleManager.chooseMove();
 					console.log(roomId  + move);
 					if(move) {
 						send(roomId  + move);
@@ -111,14 +111,14 @@ exports.parse = {
 			case 'request':
 				if(spl[2]){
 					console.log()
-					if(!pokemonManager){
-						pokemonManager = new PokemonManager(JSON.parse(spl[2]), gen);
+					if(!battleManager){
+						battleManager = new BattleManager(JSON.parse(spl[2]), gen);
 					}
 					else{
-						pokemonManager.updateData(JSON.parse(spl[2]));
+						battleManager.updateData(JSON.parse(spl[2]));
 					}
 					if(JSON.parse(spl[2]).wait) return;
-					var move = pokemonManager.chooseRandomMove();
+					var move = battleManager.chooseRandomMove();
 					console.log(roomId  + move);
 					if(move) {
 						send(roomId  + move);
@@ -127,7 +127,7 @@ exports.parse = {
 				break;
 			case 'error':
 				if(spl[2].includes("[Invalid choice]")){
-					var move = pokemonManager.chooseRandomMove();
+					var move = battleManager.chooseRandomMove();
 					console.log(roomId  + move);
 					send(roomId  +move);
 				}

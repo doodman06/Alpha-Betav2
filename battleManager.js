@@ -1,7 +1,7 @@
 const {Dex} = require('pokemon-showdown');
 const {calculate, Pokemon, Move, Generations} = require('@smogon/calc');
 
-class PokemonManager {
+class BattleManager {
     /**
      * Initializes the Pokemon Manager and game state
      * @param {JSON} jsonData  JSON data received from the server
@@ -691,4 +691,4 @@ class gameState {
 }
 
 
-module.exports = PokemonManager;
+module.exports = BattleManager;

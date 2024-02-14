@@ -82,7 +82,7 @@ info('starting server');
 
 var WebSocketClient = require('websocket').client;
 global.Parse = require('./parser.js').parse;
-global.PokemonManager = require('./battleManager.js');
+global.BattleManager = require('./battleManager.js');
 global.Connection = null;
 
 var queue = [];
