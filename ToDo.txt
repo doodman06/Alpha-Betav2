@@ -25,3 +25,7 @@ Added some JSDoc comments
 
 2/10/2024
 Added JSDoc parameter descriptions
+
+2/14/2024
+Added more JSDoc for almost everything
+Might need to change the battlemangager to include the current data as the gameState instaed of keeping a seperate current gameState.
