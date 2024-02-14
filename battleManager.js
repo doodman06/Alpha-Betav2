@@ -1,6 +1,9 @@
 const {Dex} = require('pokemon-showdown');
 const {calculate, Pokemon, Move, Generations} = require('@smogon/calc');
 
+/**
+ * Manages the state of the battle and the AI
+ */
 class BattleManager {
     /**
      * Initializes the Pokemon Manager and game state
@@ -300,6 +303,9 @@ class BattleManager {
     
 }
 
+/**
+ * Stores the AI's Pokemon
+ */
 class myPokemon {
 
     /**
@@ -335,6 +341,10 @@ class myPokemon {
     };
 };
 
+
+/**
+ * Stores the enemy's Pokemon
+ */
 class enemyPokemon {
     /**
      * initializes a new enemyPokemon object
@@ -365,6 +375,10 @@ class enemyPokemon {
         }
     }
 }
+
+/**
+ * Stores the pp of the AI's Pokemon
+ */
 class ppTracker {
     /**
      * Initializes a new ppTracker object
@@ -411,6 +425,9 @@ class ppTracker {
     }
 }
 
+/**
+ * Stores the game state
+ */
 class gameState {
     
     /**
