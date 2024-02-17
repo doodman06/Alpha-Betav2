@@ -4,6 +4,10 @@ const {calculate, Pokemon, Move, Generations} = require('@smogon/calc');
 /**
  * Manages the state of the battle and the AI
  */
+
+//declare gen as a global variable
+var generation;
+
 class BattleManager {
     /**
      * Initializes the Pokemon Manager and game state
@@ -14,7 +18,9 @@ class BattleManager {
         this.data = jsonData;
         this.gameState = new gameState();
         this.parseData(jsonData);
-        this.gen = Generations.get(gen);
+        generation = Generations.get(gen);
+        this.gen = generation;
+        
     }
     /**
      * Initializes the enemy pokemon list
@@ -166,8 +172,8 @@ class BattleManager {
             }
         }
         if(depth == initialDepth) {
-            var max = -100000;
-            var bestMove;
+            var max = moveScores[0];
+            var bestMove = moves[0];
             console.log(moves);
             for(let i = 0; i < moveScores.length; i++) {
                 if(moveScores[i] > max) {
@@ -411,6 +417,7 @@ class gameState {
         this.enemyPokemonList = [];
         this.activeEnemy = null;
         this.pp = new ppTracker();
+        this.gen = generation;
 
 
         /* this.myPokemonList = JSON.parse(JSON.stringify(myPokemonList));

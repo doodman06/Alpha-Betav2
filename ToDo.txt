@@ -36,3 +36,6 @@ Tried including all information in the current gameState. Removed redundant func
 2/17/2024
 Moved simulation of moves to the gameState class and included move priority and enemy switching in simulation. 
 If the Ai's move has higher priority it goes first else the enemy goes first.
+
+2/17/2024
+Fixed bug where move was not being selected when only one option was available
