@@ -199,13 +199,14 @@ class BattleManager {
             }
         }
         Dex.species.get(enemyPokemon.name).baseStats.spd > myPokemon.spd
+
+        var learnsetData = Dex.species.getLearnsetData(Dex.toID(enemyPokemon.name));  
+        var moveList = [];
+        moveList = Object.keys(learnsetData.learnset);
         
         if(true) { 
             //we go first
             if(move.includes('|/choose switch')) { 
-                var learnsetData = Dex.species.getLearnsetData(Dex.toID(enemyPokemon.name));  
-                var moveList = [];
-                moveList = Object.keys(learnsetData.learnset);
                 for(let i = 0; i < moveList.length; i++) {
                     var newGameState = initialGameState.clone();
                     newGameState.switchMyActiveTo(moveName);
@@ -232,11 +233,8 @@ class BattleManager {
                     gameStates.push(newGameState);
                 }
 
-            } else {
+            } else if(true) {
 
-            var learnsetData = Dex.species.getLearnsetData(Dex.toID(enemyPokemon.name));  
-            var moveList = [];
-            moveList = Object.keys(learnsetData.learnset);
             for(let i = 0; i < moveList.length; i++) {
                 const result = calculate(
                     this.gen,
@@ -489,6 +487,64 @@ class gameState {
     resetPP() {
         this.pp = new ppTracker();
     }
+
+    getActiveEnemy() {
+        for(let i = 0; i < this.enemyPokemonList.length; i++) {
+            if(this.enemyPokemonList[i].name == this.activeEnemy) {
+                return this.enemyPokemonList[i];
+            }
+        }
+    }
+
+    enemyMove(enemyMove) {
+        var myPokemon = this.getMyActive();
+        var enemyPokemon = this.getActiveEnemy();
+        const result = calculate(
+            this.gen,
+            new Pokemon(this.gen, enemyPokemon.name, {
+                boosts: enemyPokemon.statBoosts
+            }),
+            new Pokemon(this.gen, this.getMyActive().name),
+            new Move(this.gen, enemyMove)
+        )
+        var damage;
+        if(Array.isArray(result.damage)) {
+            damage = result.damage[result.damage.length - 1];
+        }  else {
+            damage = result.damage;
+        }
+    
+        this.updateMyPokemon(this.getMyActive().name, myPokemon.hp - damage);
+        if(this.myPokemonList[0].hp <= 0) {
+            this.myPokemonList[0].alive = false;
+            this.setForceSwitch(true);
+        } 
+    }
+
+    myMove(myMove) {
+        var enemyPokemon = this.getActiveEnemy();
+        const result2 = calculate(  
+            this.gen,
+            new Pokemon(this.gen, this.getMyActive().name),
+            new Pokemon(this.gen, enemyPokemon.name),
+            new Move(this.gen, myMove)
+        )
+        var damage2;
+        if(Array.isArray(result2.damage)) {
+            damage2 = result2.damage[0];
+        }  else {
+            damage2 = result2.damage;
+        }
+        this.decrementPP(myMove);
+        this.updateEnemy(enemyPokemon.name, enemyPokemon.hp - (damage2 / Dex.species.get(enemyPokemon.name).baseStats.hp));
+        if(this.enemyPokemonList[0].hp <= 0) {
+            this.enemyPokemonList[0].alive = false;
+            this.switchEnemyActive();
+        }  
+
+    }
+
+   
 
 
 
