@@ -210,74 +210,42 @@ class BattleManager {
                 for(let i = 0; i < moveList.length; i++) {
                     var newGameState = initialGameState.clone();
                     newGameState.switchMyActiveTo(moveName);
-                    const result = calculate(
-                        this.gen,
-                        new Pokemon(this.gen, enemyPokemon.name, {
-                            boosts: enemyPokemon.statBoosts
-                        }),
-                        new Pokemon(this.gen, newGameState.getMyActive().name),
-                        new Move(this.gen, moveList[i])
-                    )
-                    var damage;
-                    if(Array.isArray(result.damage)) {
-                        damage = result.damage[result.damage.length - 1];
-                    }  else {
-                        damage = result.damage;
-                    }
-                
-                    newGameState.updateMyPokemon(newGameState.getMyActive().name, myPokemon.hp - damage);
-                    if(newGameState.myPokemonList[0].hp <= 0) {
-                        newGameState.myPokemonList[0].alive = false;
-                        newGameState.setForceSwitch(true);
-                    }  
+                    newGameState.enemyMove(moveList[i]);
                     gameStates.push(newGameState);
                 }
 
-            } else if(true) {
+            } else {
 
             for(let i = 0; i < moveList.length; i++) {
-                const result = calculate(
-                    this.gen,
-                    new Pokemon(this.gen, enemyPokemon.name),
-                    new Pokemon(this.gen, myPokemon.name),
-                    new Move(this.gen, moveList[i])
-                )
-                var damage;
-                if(Array.isArray(result.damage)) {
-                    damage = result.damage[result.damage.length - 1];
-                }  else {
-                    damage = result.damage;
-                }
                 var newGameState = initialGameState.clone();
-                //console.log(damage);
-                //console.log(myPokemon.hp);
-                newGameState.updateMyPokemon(myPokemon.name, myPokemon.hp - damage);
-                if(newGameState.myPokemonList[0].hp <= 0) {
-                    newGameState.myPokemonList[0].alive = false;
-                    newGameState.setForceSwitch(true);
+                const currentMove = Dex.moves.get(moveName);
+                const currentEnemyMove = Dex.moves.get(moveList[i]); 
+
+                if(currentMove.priority > currentEnemyMove.priority) {
+                    newGameState.myMove(moveName);
+                    newGameState.enemyMove(moveList[i]);
+                } else {
+                    newGameState.enemyMove(moveList[i]);
+                    newGameState.myMove(moveName);
                 }
-                const result2 = calculate(  
-                    this.gen,
-                    new Pokemon(this.gen, newGameState.getMyActive().name),
-                    new Pokemon(this.gen, enemyPokemon.name),
-                    new Move(this.gen, moveName)
-                )
-                var damage2;
-                if(Array.isArray(result2.damage)) {
-                    damage2 = result2.damage[0];
-                }  else {
-                    damage2 = result2.damage;
-                }
-                newGameState.decrementPP(moveName);
-                newGameState.updateEnemy(enemyPokemon.name, enemyPokemon.hp - (damage2 / Dex.species.get(enemyPokemon.name).baseStats.hp));
-                if(newGameState.enemyPokemonList[0].hp <= 0) {
-                    newGameState.enemyPokemonList[0].alive = false;
-                    newGameState.switchEnemyActive();
-                }   
                 gameStates.push(newGameState);
             }
         }
         }
+        //enemy switches
+        for(let i = 1; i < initialGameState.enemyPokemonList.length; i++) {
+            if(initialGameState.enemyPokemonList[i].alive && initialGameState.enemyPokemonList[i].name != initialGameState.activeEnemy && initialGameState.enemyPokemonList[i].hp > 0) {
+                var newGameState = initialGameState.clone();
+                newGameState.switchEnemyActiveTo(initialGameState.enemyPokemonList[i].name);
+                if(move.includes('|/choose switch')) {
+                    newGameState.switchMyActiveTo(moveName);
+                } else {
+                    newGameState.myMove(moveName);
+                }
+                gameStates.push(newGameState);
+            }
+        }
+
         
         //return gameState with lowest score
         var min = 100000;   
@@ -526,7 +494,9 @@ class gameState {
         const result2 = calculate(  
             this.gen,
             new Pokemon(this.gen, this.getMyActive().name),
-            new Pokemon(this.gen, enemyPokemon.name),
+            new Pokemon(this.gen, enemyPokemon.name, {
+                boosts: enemyPokemon.statBoosts
+            }),
             new Move(this.gen, myMove)
         )
         var damage2;
