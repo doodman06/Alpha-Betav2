@@ -84,6 +84,10 @@ var WebSocketClient = require('websocket').client;
 global.Parse = require('./parser.js').parse;
 global.BattleManager = require('./battleManager.js');
 global.Connection = null;
+const dns = require('node:dns');
+dns.setDefaultResultOrder('ipv4first');
+
+
 
 var queue = [];
 var dequeueTimeout = null;

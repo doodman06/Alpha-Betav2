@@ -1,5 +1,6 @@
 const {Dex} = require('pokemon-showdown');
 const {calculate, Pokemon, Move, Generations} = require('@smogon/calc');
+const pokemon = require('pokemon-showdown/dist/sim/pokemon');
 
 /**
  * Manages the state of the battle and the AI
@@ -30,33 +31,23 @@ class BattleManager {
         enemyList.forEach(pokemon => {
             this.gameState.addEnemyPokemon(new enemyPokemon(pokemon));
         });
-        //console.log(this.enemyList);
     }
     /**
      * Parses the JSON data received from the server
      * @param {JSON} jsonData JSON Data received from the server
      */
     parseData(jsonData) {
-        jsonData.side.pokemon.forEach(pokemon => {
-            this.gameState.addMyPokemon(new myPokemon(pokemon.details, pokemon.condition, pokemon.moves, pokemon.stats));
-        });
-        this.gameState.resetPP();
-        if('active' in jsonData) {
-            console.log(jsonData.active[0])
-            jsonData.active[0].moves.forEach( moves => {
-                this.gameState.addPPMove(moves.id, moves.pp);
-            });
-        }
-        //console.log(this.pokemonList);
+        this.gameState.updateFromJSON(jsonData);
+        this.gameState.updateMyPP(jsonData);
     }
     /**
      * Updates the game state with new data
      * @param {JSON} jsonData JSON Data received from the server
      */
     updateData(jsonData) {
-        this.gameState.setMyPokemonList([]);
         this.data = jsonData;
         this.parseData(jsonData);
+        console.log(this.gameState.myPokemonList);
     }
 
     /**
@@ -287,7 +278,7 @@ class myPokemon {
      * @param {string[]} moveList the list of moves the pokemon has
      * @param {number[]} statsList the list of stats the pokemon has
      */
-    constructor(name, condition, moveList, statsList) {
+    constructor(name, condition, moveList, statsList, pos) {
         let namespl = name.split(',');
         this.name = namespl[0];
         this.types = Dex.species.get(this.name).types;
@@ -302,6 +293,7 @@ class myPokemon {
         this.maxHP = maxHP;
         this.hp = currenthp;
         this.moves = moveList;
+        this.pos = pos;
         if(!condition){
             this.alive = false;
         } else {
@@ -310,7 +302,84 @@ class myPokemon {
         if(this.hp == 0){
             this.alive = false;
         }
+        this.statBoosts = {atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+        this.pp = [];
+        this.moves.forEach(move => {
+            const moveData = Dex.moves.get(move);
+            this.pp.push(moveData.pp);
+        });
     };
+    setPP(pp, move){
+        var i = this.moves.indexOf(move);
+        this.pp[i] = pp;
+    }
+
+    update(name, condition, pos) {
+        let namespl = name.split(',');
+        this.name = namespl[0];
+        this.types = Dex.species.get(this.name).types;
+        var spl = condition.split('/');
+        var maxHP = parseInt(spl[1]);
+        var currenthp = parseInt(spl[0]);
+        this.maxHP = maxHP;
+        this.hp = currenthp;
+        this.pos = pos;
+        if(!condition){
+            this.alive = false;
+        } else {
+            this.alive = true;
+        }
+        if(this.hp == 0){
+            this.alive = false;
+        }
+        return this;
+    
+    }
+    addStatBoost(stat, boost) {
+        this.statBoosts[stat] += boost;
+        if(this.statBoosts[stat] > 6) {
+            this.statBoosts[stat] = 6;
+        }
+        if(this.statBoosts[stat] < -6) {
+            this.statBoosts[stat] = -6;
+        }
+    }
+
+    setStatBoost(statBoosts) {
+        this.statBoosts = statBoosts;
+    }
+
+    /**
+     * Searches for a move and decrements its pp by 1
+     * @param {string} move the name of the move
+     */
+    decrementPP(move) {
+        for(let i = 0; i < this.moves.length; i++) {
+            if(this.moves[i] == move) {
+                this.pp[i] = this.pp[i] - 1;
+            }
+        }
+    }
+    
+    getPP(move) {
+        for(let i = 0; i < this.moves.length; i++) {
+            if(this.moves[i] == move) {
+                return this.pp[i];
+            }
+        }
+    }
+
+    setPPList(pp) {
+        this.pp = pp;
+    }
+
+    clone() {
+        var pokemon = new myPokemon(this.name, this.hp + '/' + this.maxHP, this.moves, [this.atk, this.def, this.spa, this.spd, this.spe], this.pos);
+        pokemon.setStatBoost(this.statBoosts);
+        pokemon.setPPList(structuredClone(this.pp));
+        return pokemon;
+    }
+
 };
 
 
@@ -348,54 +417,7 @@ class enemyPokemon {
     }
 }
 
-/**
- * Stores the pp of the AI's Pokemon
- */
-class ppTracker {
-    /**
-     * Initializes a new ppTracker object
-     */
-    constructor() {
-        this.moves = [];
-        this.Mypp = [];
-    }
 
-    /**
-     * Adds a move to the pp tracker
-     * @param {string} move the name of the move
-     * @param {number} pp the initial max pp of the move
-     */
-    addMove(move, pp) {
-        this.moves.push(move);
-        this.Mypp.push(pp);
-    }
-    /**
-     * gets the current pp of a move
-     * @param {string} move the name of the move
-     * @returns {number} the current pp of the move
-     */
-    getPP(move) {
-        console.log("Now")
-        console.log(this.moves);
-        for(let i = 0; i < this.moves.length; i++) {
-            if(this.moves[i] == move) {
-                return this.Mypp[i];
-            }
-        }
-        return 10;
-    }
-    /**
-     * decrements the pp of a move by 1
-     * @param {string} move the name of the move
-     */
-    decrementPP(move) {
-        for(let i = 0; i < this.moves.length; i++) {
-            if(this.moves[i] == move) {
-                this.Mypp[i] = this.Mypp[i] - 1;
-            }
-        }
-    }
-}
 
 /**
  * Stores the game state
@@ -407,7 +429,6 @@ class gameState {
      * @param {myPokemon[]} myPokemonList the list of the AI's pokemon
      * @param {enemyPokemon[]} enemyPokemonList the list of the enemy's pokemon
      * @param {string} activeEnemy the name of the currently active enemy pokemon
-     * @param {ppTracker} pp the pp tracker for the AI's pokemon
      */
     constructor() {
         //need to create new objects withour reference to old ones
@@ -416,16 +437,8 @@ class gameState {
         this.myPokemonList = [];
         this.enemyPokemonList = [];
         this.activeEnemy = null;
-        this.pp = new ppTracker();
         this.gen = generation;
 
-
-        /* this.myPokemonList = JSON.parse(JSON.stringify(myPokemonList));
-        this.enemyPokemonList = JSON.parse(JSON.stringify(enemyPokemonList));
-        this.activeEnemy = JSON.parse(JSON.stringify(activeEnemy));
-        this.pp = new ppTracker();
-        this.pp.moves = JSON.parse(JSON.stringify(pp.moves));
-        this.pp.Mypp = JSON.parse(JSON.stringify(pp.Mypp)); */
 
     }
 
@@ -450,18 +463,6 @@ class gameState {
     setActiveEnemy(activeEnemy) {
         this.activeEnemy = activeEnemy;
     }
-    setPP(pp) {
-        this.pp.moves = pp.moves;
-        this.pp.Mypp = pp.Mypp;
-    }
-
-    addPPMove(move, pp) {
-        this.pp.addMove(move, pp);
-    }
-
-    resetPP() {
-        this.pp = new ppTracker();
-    }
 
     getActiveEnemy() {
         for(let i = 0; i < this.enemyPokemonList.length; i++) {
@@ -469,6 +470,57 @@ class gameState {
                 return this.enemyPokemonList[i];
             }
         }
+    }
+
+    updateFromJSON(Json) {
+        var i = 0;
+        Json.side.pokemon.forEach(pokemon => {
+            if(!this.myPokemonExists(pokemon.details.split(',')[0])) {
+                this.addMyPokemon(new myPokemon(pokemon.details, pokemon.condition, pokemon.moves, pokemon.stats, i));
+            } else {
+                this.updateMyPokemonFromJSON(pokemon.details, pokemon.condition, i);
+                
+            }
+            i++;
+        });
+        this.myPokemonList.sort(this.order);
+        
+    }
+
+    order(a, b){
+        return a.pos - b.pos;
+    }
+    updateMyPokemonFromJSON(details, condition, pos) {
+        let namespl = details.split(',');
+        var name = namespl[0];
+        for(let i = 0; i < this.myPokemonList.length; i++) {
+            if(this.myPokemonList[i].name == name) {
+                this.myPokemonList[i].update(details, condition, pos);
+            }
+        }
+    }
+
+    //update PP of the active pokemon
+    updateMyPP(jsonData) {
+        if('active' in jsonData) {
+            console.log(jsonData.active[0])
+            jsonData.active[0].moves.forEach( moves => {
+                this.myPokemonList[0].setPP(moves.pp, moves.id);
+                
+            });
+        } 
+    }
+
+    myPokemonExists(pokemon) {  
+        for(let i = 0; i < this.myPokemonList.length; i++) {
+            if(this.myPokemonList[i].name == pokemon) {
+                return true;
+            }
+        }
+    }
+
+    setMyPokemonListPos(pos, pokemon) {
+        this.myPokemonList[pos] = pokemon;
     }
 
     enemyMove(enemyMove) {
@@ -531,11 +583,12 @@ class gameState {
      */
     clone() {
         var newGameState = new gameState();
-        newGameState.myPokemonList = JSON.parse(JSON.stringify(this.myPokemonList));
+        newGameState.myPokemonList = [];
+        for(let i = 0; i < this.myPokemonList.length; i++) {
+            newGameState.myPokemonList.push(this.myPokemonList[i].clone());
+        }
         newGameState.enemyPokemonList = JSON.parse(JSON.stringify(this.enemyPokemonList));
         newGameState.activeEnemy = JSON.parse(JSON.stringify(this.activeEnemy));
-        newGameState.pp.moves = JSON.parse(JSON.stringify(this.pp.moves));
-        newGameState.pp.Mypp = JSON.parse(JSON.stringify(this.pp.Mypp));
         return newGameState;
     }
 
@@ -560,7 +613,7 @@ class gameState {
      * @param {string} move the name of the move
      */
     decrementPP(move) {
-        this.pp.decrementPP(move);
+        this.myPokemonList[0].decrementPP(move);
     }
 
     /**
@@ -569,8 +622,7 @@ class gameState {
      * @returns {boolean} whether the move is usable
      */
     isMoveUsable(move) {
-        console.log(this.pp)
-        if(this.pp.getPP(move) > 0) {
+        if(this.myPokemonList[0].getPP(move) > 0){
             console.log("move usable");
             return true;
         } else {
