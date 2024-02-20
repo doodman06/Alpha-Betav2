@@ -44,3 +44,7 @@ Fixed bug where move was not being selected when only one option was available
 Moved pp tracking to the myPokemon class. Also updated node.js to version 18. This caused a bug that was fixed by adding an extra line in main.js found https://github.com/node-fetch/node-fetch/issues/1624.
 Updating to the never version was to use structuredClone() because I thought it would clone methods. It does not clone methods :( .
 Next need to seperate the classes into different files and start tracking stat boosts for the AI.
+
+2/20/2024
+Added tracking of AI stat boosts. Added JSDOC for the new methods.
+Discovered odd bug where pp is: pp: [ 16, 15, 13, 31, '-1': 24 ] for some reason.

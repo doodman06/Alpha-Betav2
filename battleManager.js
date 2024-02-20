@@ -68,6 +68,20 @@ class BattleManager {
 
     }
 
+    /**
+     * Apply the effect of the turn to the game state
+     * @param {string} effect the effect of the turn
+     * @param {string} pokemon the name of the pokemon 
+     * @param {string|number|undefined} details the stat to be boosted
+     * @param {number|undefined} extra the stage of boost
+     */
+    updateMyPokemonFromTurn(effect, pokemon, details, extra) {
+        if(effect == "-boost"){
+            this.gameState.updateMyBoost(pokemon, details, extra);
+        }
+    }
+
+
 
     chooseRandomMove() {
         //if in a teampreview use default loudout
@@ -309,11 +323,23 @@ class myPokemon {
             this.pp.push(moveData.pp);
         });
     };
+
+    /**
+     * sets the pp of a move
+     * @param {number} pp the new pp of the move
+     * @param {string} move name of the move
+     */
     setPP(pp, move){
         var i = this.moves.indexOf(move);
         this.pp[i] = pp;
     }
 
+    /**
+     * updates a pokemon's stats
+     * @param {string} name the name of the pokemon
+     * @param {string} condition the condition of the pokemon (hp/maxHP)
+     * @param {number} pos the position of the pokemon in the team
+     */
     update(name, condition, pos) {
         let namespl = name.split(',');
         this.name = namespl[0];
@@ -335,6 +361,12 @@ class myPokemon {
         return this;
     
     }
+
+    /**
+     * adds a stat boost to the pokemon
+     * @param {string} stat the stat to be boosted
+     * @param {number} boost the number of stages to be boosted can be negative or positive
+     */
     addStatBoost(stat, boost) {
         this.statBoosts[stat] += boost;
         if(this.statBoosts[stat] > 6) {
@@ -345,6 +377,10 @@ class myPokemon {
         }
     }
 
+    /**
+     * sets the stat boosts of the pokemon
+     * @param {Json} statBoosts a JSON object containing the stat boosts
+     */
     setStatBoost(statBoosts) {
         this.statBoosts = statBoosts;
     }
@@ -361,6 +397,11 @@ class myPokemon {
         }
     }
     
+    /**
+     * gets the pp of a move
+     * @param {string} move the name of the move
+     * @returns {number} the pp of the move
+     */
     getPP(move) {
         for(let i = 0; i < this.moves.length; i++) {
             if(this.moves[i] == move) {
@@ -369,10 +410,18 @@ class myPokemon {
         }
     }
 
+    /**
+     * sets the pp of all moves
+     * @param {number[]} pp the new pp of all moves
+     */
     setPPList(pp) {
         this.pp = pp;
     }
 
+    /**
+     * clones the current myPokemon object without reference
+     * @returns {myPokemon} a new myPokemon object with the same values as the current one
+     */
     clone() {
         var pokemon = new myPokemon(this.name, this.hp + '/' + this.maxHP, this.moves, [this.atk, this.def, this.spa, this.spd, this.spe], this.pos);
         pokemon.setStatBoost(this.statBoosts);
@@ -426,17 +475,29 @@ class gameState {
     
     /**
      * Initializes a new gameState object
-     * @param {myPokemon[]} myPokemonList the list of the AI's pokemon
-     * @param {enemyPokemon[]} enemyPokemonList the list of the enemy's pokemon
-     * @param {string} activeEnemy the name of the currently active enemy pokemon
      */
     constructor() {
         //need to create new objects withour reference to old ones
+        /**
+         * @type {boolean} whether a pokemon must be switched to
+         */
         this.forceSwitch = false;
 
+        /**
+         * @type {myPokemon[]} the list of the AI's pokemon
+         */
         this.myPokemonList = [];
+        /**
+         * @type {enemyPokemon[]} the list of the enemy's pokemon
+         */
         this.enemyPokemonList = [];
+        /**
+         * @type {string} the name of the currently active enemy pokemon
+         */
         this.activeEnemy = null;
+        /**
+         * @type {Generations} the generation of the current battle
+         */
         this.gen = generation;
 
 
@@ -464,6 +525,10 @@ class gameState {
         this.activeEnemy = activeEnemy;
     }
 
+    /**
+     * gets the active enemy pokemon
+     * @returns {enemyPokemon} the active enemy pokemon
+     */
     getActiveEnemy() {
         for(let i = 0; i < this.enemyPokemonList.length; i++) {
             if(this.enemyPokemonList[i].name == this.activeEnemy) {
@@ -472,6 +537,10 @@ class gameState {
         }
     }
 
+    /**
+     * updates the Ai's pokemon list from JSON data
+     * @param {Json} Json JSON data received from the server
+     */
     updateFromJSON(Json) {
         var i = 0;
         Json.side.pokemon.forEach(pokemon => {
@@ -487,9 +556,22 @@ class gameState {
         
     }
 
+    /**
+     * used for sorting the pokemon list
+     * @param {number} a the position of the first pokemon
+     * @param {number} b the position of the second pokemon
+     * @returns {number} the difference between the positions of the two pokemon
+     */
     order(a, b){
         return a.pos - b.pos;
     }
+
+    /**
+     * updates the Ai's pokemon from JSON its data
+     * @param {string} details the details of the pokemon (including name and level)
+     * @param {string} condition the condition of the pokemon (hp/maxHP)
+     * @param {number} pos the position of the pokemon in the team
+     */
     updateMyPokemonFromJSON(details, condition, pos) {
         let namespl = details.split(',');
         var name = namespl[0];
@@ -501,6 +583,10 @@ class gameState {
     }
 
     //update PP of the active pokemon
+    /**
+     * updates the PP of the active pokemon from JSON data
+     * @param {Json} jsonData the JSON data received from the server
+     */
     updateMyPP(jsonData) {
         if('active' in jsonData) {
             console.log(jsonData.active[0])
@@ -511,6 +597,11 @@ class gameState {
         } 
     }
 
+    /**
+     * checks if a pokemon is in the AI's pokemon list
+     * @param {string} pokemon the name of the pokemon
+     * @returns {boolean} whether the pokemon is in the list
+     */
     myPokemonExists(pokemon) {  
         for(let i = 0; i < this.myPokemonList.length; i++) {
             if(this.myPokemonList[i].name == pokemon) {
@@ -519,10 +610,20 @@ class gameState {
         }
     }
 
+    /**
+     * sets the pokemon at a certain position in the list
+     * @param {number} pos the position of the pokemon in the list
+     * @param {string} pokemon the name of the pokemon
+     */
     setMyPokemonListPos(pos, pokemon) {
         this.myPokemonList[pos] = pokemon;
     }
 
+    /**
+     * simulates the enemy's move.
+     * Always uses the worst result for the AI.
+     * @param {string} enemyMove the name of the move used by the enemy
+     */
     enemyMove(enemyMove) {
         var myPokemon = this.getMyActive();
         var enemyPokemon = this.getActiveEnemy();
@@ -531,7 +632,9 @@ class gameState {
             new Pokemon(this.gen, enemyPokemon.name, {
                 boosts: enemyPokemon.statBoosts
             }),
-            new Pokemon(this.gen, this.getMyActive().name),
+            new Pokemon(this.gen, this.getMyActive().name, {
+                boosts: this.getMyActive().statBoosts
+            }),
             new Move(this.gen, enemyMove)
         )
         var damage;
@@ -548,11 +651,19 @@ class gameState {
         } 
     }
 
+
+    /**
+     * simulates the AI's move.
+     * Always uses the worst result for the AI.
+     * @param {string} myMove the name of the move used by the AI
+     */
     myMove(myMove) {
         var enemyPokemon = this.getActiveEnemy();
         const result2 = calculate(  
             this.gen,
-            new Pokemon(this.gen, this.getMyActive().name),
+            new Pokemon(this.gen, this.getMyActive().name, {
+                    boosts: this.getMyActive().statBoosts
+            }),
             new Pokemon(this.gen, enemyPokemon.name, {
                 boosts: enemyPokemon.statBoosts
             }),
@@ -787,6 +898,20 @@ class gameState {
             if(enemy.name == pokemon) {
                 enemy.addStatBoost(stat, parseInt(newBoost));
                 console.log(enemy.statBoosts[stat]);
+            }
+        });
+    }
+
+    /**
+     * Updates the stat boost of the AI's pokemon
+     * @param {string} pokemon Name of the AI's pokemon
+     * @param {string} stat Stat to be updated
+     * @param {int} newBoost Number of boost stages to be added
+     */
+    updateMyBoost(pokemon, stat, newBoost) {
+        this.myPokemonList.forEach(myPokemon => {
+            if(myPokemon.name == pokemon) {
+                myPokemon.addStatBoost(stat, parseInt(newBoost));
             }
         });
     }

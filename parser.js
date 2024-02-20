@@ -88,6 +88,11 @@ exports.parse = {
 				//battleManager.updateEnemyBoost(spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
 				battleManager.updateFromTurn("-boost", spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
 			}
+			if(spl[i] == "-boost" && spl[i + 1].includes('p2')){
+				//battleManager.updateEnemyBoost(spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
+				battleManager.updateMyPokemonFromTurn("-boost", spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
+			}
+
 
 			if(spl[i] == "turn") {
 				var move = battleManager.chooseMove();
