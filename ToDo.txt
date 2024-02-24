@@ -48,3 +48,7 @@ Next need to seperate the classes into different files and start tracking stat b
 2/20/2024
 Added tracking of AI stat boosts. Added JSDOC for the new methods.
 Discovered odd bug where pp is: pp: [ 16, 15, 13, 31, '-1': 24 ] for some reason.
+
+2/24/2024
+Moved gameState, myPokemon and enemyPokemon classes to separate files.
+Added simulation of stat boosts from moves to the simulation.
