@@ -82,8 +82,16 @@ info('starting server');
 
 var WebSocketClient = require('websocket').client;
 global.Parse = require('./parser.js').parse;
-global.PokemonManager = require('./battleManager.js');
+global.BattleManager = require('./battleManager.js');
+global.gameState = require('./gameState.js');
+global.myPokemon = require('./myPokemon.js');
+global.enemyPokemon = require('./enemyPokemon.js');
 global.Connection = null;
+global.generation = 6;
+const dns = require('node:dns');
+dns.setDefaultResultOrder('ipv4first');
+
+
 
 var queue = [];
 var dequeueTimeout = null;
