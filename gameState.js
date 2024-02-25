@@ -296,10 +296,10 @@ class gameState {
      */
     isMoveUsable(move) {
         if(this.myPokemonList[0].getPP(move) > 0){
-            console.log("move usable");
+            //console.log("move usable");
             return true;
         } else {
-            console.log("move not usable");
+            //console.log("move not usable");
             return false;
         }
     }

@@ -93,6 +93,16 @@ exports.parse = {
 				battleManager.updateMyPokemonFromTurn("-boost", spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
 			}
 
+			//reset everythin once the battle is over
+			if(spl[i] == "win"){
+				battleManager = null;
+				battlestarted = false;
+				enemyName = [];
+				roomId = null;
+				gen = null;
+
+			}
+
 
 			if(spl[i] == "turn") {
 				var move = battleManager.chooseMove();

@@ -102,8 +102,9 @@ class BattleManager {
      */
     chooseMove() {
         this.gameState.setForceSwitch(false);
-        console.log("Active Enemy");
-        console.log(this.gameState.activeEnemy);
+        //console.log("Active Enemy");
+        //console.log(this.gameState.activeEnemy);
+        console.log(this.gameState.enemyPokemonList);
         var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, false);
         console.log(bestMove);
 
@@ -150,7 +151,7 @@ class BattleManager {
             gameState.myPokemonList[0].moves.forEach(move => {
                 //add the move as an option if there is enough pp
                 if(gameState.isMoveUsable(move)) {
-                    console.log(move + " is added ")
+                    //console.log(move + " is added ")
                     moves.push('|/choose move ' + move);
                 }
             });
@@ -206,8 +207,6 @@ class BattleManager {
                 enemyPokemon = initialGameState.enemyPokemonList[i];
             }
         }
-        Dex.species.get(enemyPokemon.name).baseStats.spd > myPokemon.spd
-
         var learnsetData = Dex.species.getLearnsetData(Dex.toID(enemyPokemon.name));  
         var moveList = [];
         moveList = Object.keys(learnsetData.learnset);
