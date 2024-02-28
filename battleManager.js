@@ -135,7 +135,9 @@ class BattleManager {
      * @param {number} beta  the maximum score the minimizing player (opponent) is guaranteed
      * @returns the best move to be used at the initial depth or the score of the current game state otherwise
      */
-    alphaBeta(gameState, initialDepth, depth, alpha, beta) {
+    alphaBeta(gameState, initialDepth, depth, alpha, beta, maximizing) {
+        //check if the current player is the maximizing player
+
         if(depth == 0 || gameState.myPokemonList.length == 0 || gameState.enemyPokemonList.length == 0) {
            // console.log("evaluate state");
             //console.log(gameState.evaluateState());
@@ -168,7 +170,7 @@ class BattleManager {
             var minV = 100000;
             for(let j = 0; j < simGameStates.length; j++) {
                 v = Math.max(v, this.alphaBeta(simGameStates[j], initialDepth, depth - 1, beta, alpha));
-                minV = Math.max(minV, v);
+                minV = Math.min(minV, v);
                 alpha = Math.max(alpha, v);
                 if(beta <= alpha) {
                     break;
@@ -183,6 +185,7 @@ class BattleManager {
             }
         }
         if(depth == initialDepth) {
+            console.log(moveScores);
             var max = moveScores[0];
             var bestMove = moves[0];
             console.log(moves);
@@ -197,6 +200,8 @@ class BattleManager {
 
         return v;
     }
+
+
     
 
     /**
@@ -209,33 +214,19 @@ class BattleManager {
         var myPokemon = initialGameState.myPokemonList[0];
         var moveName = move.split(' ')[2];
         var enemyPokemon;
-        var gameStates = [];
+        var gameState;
         //if force switching like is a Pokemon died the enemy does not take a turn
         if(initialGameState.isForceSwitch()) {
             var newGameState = initialGameState.clone();
             newGameState.switchMyActiveTo(moveName);
-            gameStates.push(newGameState);
-            return gameStates;
-        }
-        if(initialGameState.isEnemyForceSwitch()) {
-            for(let i = 1; i < initialGameState.enemyPokemonList.length; i++) {
-                if(initialGameState.enemyPokemonList[i].alive && initialGameState.enemyPokemonList[i].name != initialGameState.activeEnemy && initialGameState.enemyPokemonList[i].hp > 0) {
-                    var newGameState = initialGameState.clone();
-                    newGameState.switchEnemyActiveTo(initialGameState.enemyPokemonList[i].name);
-                    gameStates.push(newGameState);
-                }
-            }
-            return gameStates;
+            gameState = newGameState;
+            return gameState;
         }
         for(let i = 0; i < initialGameState.enemyPokemonList.length; i++) {
             if(initialGameState.enemyPokemonList[i].name == initialGameState.activeEnemy) {
                 enemyPokemon = initialGameState.enemyPokemonList[i];
             }
         }
-        var learnsetData = Dex.species.getLearnsetData(Dex.toID(enemyPokemon.name));  
-        var moveList = [];
-        moveList = Object.keys(learnsetData.learnset);
-        
         if(true) { 
             //we go first
             if(move.includes('|/choose switch')) { 
