@@ -22,12 +22,23 @@ var https = require('https');
 var url = require('url');
 const {Teams} = require('pokemon-showdown');
 const team = require('./Team1.json');
+const {Worker, isMainThread, parentPort, workerData} = require('worker_threads');
 var battlestarted = false;
 var enemysaved = false;
 var enemyName = [];
 var roomId;
 var gen;
 var battleManager = null;
+
+
+async function sendMove() {
+	console.log("sendMove");
+	var worker = new Worker('./sendMove.js', {workerData: battleManager});
+	worker.on('message', (move) => {
+		console.log(roomId  + move);
+		send(roomId  + move);
+	});
+}
 
 
 
@@ -105,11 +116,7 @@ exports.parse = {
 
 
 			if(spl[i] == "turn") {
-				var move = battleManager.chooseMove();
-					console.log(roomId  + move);
-					if(move) {
-						send(roomId  + move);
-					}
+				sendMove();
 			}
 		}
 
@@ -165,6 +172,7 @@ exports.parse = {
 					path: this.actionUrl.pathname,
 					agent: false
 				};
+				
 
 				var data;
 				if (!Config.pass) {

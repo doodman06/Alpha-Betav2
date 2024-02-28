@@ -164,10 +164,18 @@ class BattleManager {
         }
         for(let i = 0; i < moves.length; i++) {
             var newGameState = gameState;
-            var simGameState = this.simulate(newGameState, moves[i]);
-            v = Math.max(v, this.alphaBeta(simGameState, initialDepth, depth - 1, alpha, beta));
+            var simGameStates = this.simulate(newGameState, moves[i]);
+            var minV = 100000;
+            for(let j = 0; j < simGameStates.length; j++) {
+                v = Math.max(v, this.alphaBeta(simGameStates[j], initialDepth, depth - 1, beta, alpha));
+                minV = Math.max(minV, v);
+                alpha = Math.max(alpha, v);
+                if(beta <= alpha) {
+                    break;
+                }
+            }
             if(depth == initialDepth) {
-                moveScores.push(v);
+                moveScores.push(minV);
             }
             alpha = Math.max(alpha, v);
             if(beta <= alpha) {
@@ -195,7 +203,7 @@ class BattleManager {
      * Simulate the game state after a move is used using the worst case scenario
      * @param {gameState} initialGameState the current game state to be simulated
      * @param {string} move the move to be simulated
-     * @returns {number} the score of the game state after the move is used
+     * @returns {gameStates[]} an array of possible game states
      */
     simulate(initialGameState, move) {
         var myPokemon = initialGameState.myPokemonList[0];
@@ -207,7 +215,7 @@ class BattleManager {
             var newGameState = initialGameState.clone();
             newGameState.switchMyActiveTo(moveName);
             gameStates.push(newGameState);
-            return gameStates[0];
+            return gameStates;
         }
         if(initialGameState.isEnemyForceSwitch()) {
             for(let i = 1; i < initialGameState.enemyPokemonList.length; i++) {
@@ -217,19 +225,7 @@ class BattleManager {
                     gameStates.push(newGameState);
                 }
             }
-             //return gameState with lowest score
-            var min = 100000;   
-            var minState;
-            gameStates.forEach(state => {
-                if(state.evaluateState() < min) {
-                    min = state.evaluateState();
-                    minState = state;
-                }
-            });
-            if(!minState) {
-                return initialGameState;
-            }
-            return minState;
+            return gameStates;
         }
         for(let i = 0; i < initialGameState.enemyPokemonList.length; i++) {
             if(initialGameState.enemyPokemonList[i].name == initialGameState.activeEnemy) {
@@ -283,19 +279,8 @@ class BattleManager {
         }
 
         
-        //return gameState with lowest score
-        var min = 100000;   
-        var minState;
-        gameStates.forEach(state => {
-            if(state.evaluateState() < min) {
-                min = state.evaluateState();
-                minState = state;
-            }
-        });
-        if(!minState) {
-            return initialGameState;
-        }
-        return minState;
+        
+        return gameStates;
 
     
         

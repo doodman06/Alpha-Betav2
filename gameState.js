@@ -36,9 +36,18 @@ class gameState {
         /**
          * @type {Generations} the generation of the current battle
          */
-        this.gen = generation;
+        this.gen = Generations.get(6);
 
 
+    }
+
+    setAll(forceSwitch, enemyForceSwitch, myPokemonList, enemyPokemonList, activeEnemy, gen) {
+        this.forceSwitch = forceSwitch;
+        this.enemyForceSwitch = enemyForceSwitch;
+        this.myPokemonList = myPokemonList;
+        this.enemyPokemonList = enemyPokemonList;
+        this.activeEnemy = activeEnemy;
+        this.gen = gen;
     }
 
     //setters and getters for variables

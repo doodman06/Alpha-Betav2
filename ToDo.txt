@@ -59,3 +59,8 @@ Resets bot state after a battle is over.
 
 2/28/2024
 Added force switching for enemy to simulation such that when the enemy Pokemon is dead the next turn is spent switching to a new Pokemon.
+
+2/28/2024
+Tried using an altered version of alpha-beta where simulate returns a set of possible states based on the possible enemy moves and the alpha beta works recusivley on those stats.
+Had to use worker threads as this took far too much time.
+However didnt work well and was far more time consuming so probably wont continue it.
