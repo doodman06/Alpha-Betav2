@@ -17,6 +17,11 @@ class gameState {
         this.forceSwitch = false;
 
         /**
+         * @type {boolean} whether the enemy must be switched to a different pokemon
+         */
+        this.enemyForceSwitch = false;
+
+        /**
          * @type {myPokemon[]} the list of the AI's pokemon
          */
         this.myPokemonList = [];
@@ -239,7 +244,7 @@ class gameState {
         }
         if(this.enemyPokemonList[0].hp <= 0) {
             this.enemyPokemonList[0].alive = false;
-            this.switchEnemyActive();
+            this.setEnemyForceSwitch(true);
         }  
 
     }
@@ -274,11 +279,27 @@ class gameState {
     }
 
     /**
+     * sets the enemyForceSwitch variable
+     * @param {boolean} bool the value to set enemyForceSwitch to
+     */
+    setEnemyForceSwitch(bool) {
+        this.enemyForceSwitch = bool;
+    }
+
+    /**
      * gets the a Boolean value of whether a Pokemon must be switched to
      * @returns {boolean} whether a Pokemon must be switched to
      */
     isForceSwitch() {
         return this.forceSwitch;
+    }
+
+    /**
+     * gets the a Boolean value of whether the enemy must switch to a different pokemon
+     * @returns {boolean} whether the enemy must switch to a different pokemon
+     */
+    isEnemyForceSwitch() {
+        return this.enemyForceSwitch;
     }
 
     /**

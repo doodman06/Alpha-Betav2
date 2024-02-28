@@ -56,3 +56,6 @@ Added simulation of stat boosts from moves to the simulation.
 2/25/2024
 Commented out some debugging console statements.
 Resets bot state after a battle is over.
+
+2/28/2024
+Added force switching for enemy to simulation such that when the enemy Pokemon is dead the next turn is spent switching to a new Pokemon.

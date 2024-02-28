@@ -202,6 +202,35 @@ class BattleManager {
         var moveName = move.split(' ')[2];
         var enemyPokemon;
         var gameStates = [];
+        //if force switching like is a Pokemon died the enemy does not take a turn
+        if(initialGameState.isForceSwitch()) {
+            var newGameState = initialGameState.clone();
+            newGameState.switchMyActiveTo(moveName);
+            gameStates.push(newGameState);
+            return gameStates[0];
+        }
+        if(initialGameState.isEnemyForceSwitch()) {
+            for(let i = 1; i < initialGameState.enemyPokemonList.length; i++) {
+                if(initialGameState.enemyPokemonList[i].alive && initialGameState.enemyPokemonList[i].name != initialGameState.activeEnemy && initialGameState.enemyPokemonList[i].hp > 0) {
+                    var newGameState = initialGameState.clone();
+                    newGameState.switchEnemyActiveTo(initialGameState.enemyPokemonList[i].name);
+                    gameStates.push(newGameState);
+                }
+            }
+             //return gameState with lowest score
+            var min = 100000;   
+            var minState;
+            gameStates.forEach(state => {
+                if(state.evaluateState() < min) {
+                    min = state.evaluateState();
+                    minState = state;
+                }
+            });
+            if(!minState) {
+                return initialGameState;
+            }
+            return minState;
+        }
         for(let i = 0; i < initialGameState.enemyPokemonList.length; i++) {
             if(initialGameState.enemyPokemonList[i].name == initialGameState.activeEnemy) {
                 enemyPokemon = initialGameState.enemyPokemonList[i];
