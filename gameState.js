@@ -161,12 +161,15 @@ class gameState {
         var moves = [];
         var enemyPokemon = this.getActiveEnemy();
         if(!this.isEnemyForceSwitch()) {
-            var dexPokemon = Dex.species.get(enemyPokemon.name);
-            dexPokemon.learnset.forEach(move => {
-                var newMove = "|/choose move " + move;
+            var learnsetData = Dex.species.getLearnsetData(Dex.toID(enemyPokemon.name));  
+            var moveList = [];
+            moveList = Object.keys(learnsetData.learnset);
+            for(let i = 0; i < moveList.length; i++) {
+                var newMove = "|/choose move " + moveList[i];
                 moves.push(newMove);
-            });
+            }
         }
+            
         //enemy switches to a different pokmeon
         for(let i = 0; i < this.enemyPokemonList; i++) {
             if(this.enemyPokemonList[i].name != enemyPokemon.name && this.enemyPokemonList[i].alive && this.enemyPokemonList[i].hp > 0) {

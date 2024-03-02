@@ -101,11 +101,24 @@ class BattleManager {
      * @returns {string} move to be used
      */
     chooseMove() {
-        this.gameState.setForceSwitch(false);
+        //if in a teampreview use default loudout
+        if(this.data.teamPreview) {
+            return '|/choose team 123456';
+        }
+
+        //console.log(this.data);
+        //if no active pokemon, switch
+        if(!this.data.active) {
+            console.log("no active pokemon");
+            this.gameState.setForceSwitch(true);
+        } else {
+            this.gameState.setForceSwitch(false);
+        }
+
         //console.log("Active Enemy");
         //console.log(this.gameState.activeEnemy);
         console.log(this.gameState.enemyPokemonList);
-        var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, true);
+        var bestMove = this.alphaBeta(this.gameState, 4, 4, -100000, 100000, true);
         console.log(bestMove);
 
         return bestMove;
@@ -119,7 +132,6 @@ class BattleManager {
     forceSwitch() {
         this.gameState.setForceSwitch(true);
 
-        //TODO: think i can remove the last parameter
         var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, true);
         console.log(bestMove);
         
@@ -168,7 +180,7 @@ class BattleManager {
             }
             for(let i = 0; i < moves.length; i++) {
             
-                var newGameState = gameState;
+                var newGameState = gameState.clone();
                 v = Math.max(v, this.alphaBeta(newGameState, initialDepth, depth - 1, alpha, beta, false, moves[i]));
                 alpha = Math.max(alpha, v);
                 moveScores.push(v);
@@ -181,9 +193,9 @@ class BattleManager {
             v = 100000;
             moves = this.gameState.getPossibleEnemyMoves();
             for(let i = 0; i < moves.length; i++) {
-                var newGameState = gameState;
+                var newGameState = gameState.clone();
                 var simGameState = this.simulate(newGameState, maximizingMove, moves[i]);
-                v = Math.max(v, this.alphaBeta(simGameState, initialDepth, depth - 1, alpha, beta, true));
+                v = Math.min(v, this.alphaBeta(simGameState, initialDepth, depth - 1, alpha, beta, true));
                 beta = Math.min(beta, v);
                 if(v <= alpha) {
                     break;
@@ -230,7 +242,7 @@ class BattleManager {
             gameState.switchMyActiveTo(moveName);
             return gameState;
         }
-        if(initialGameState.isEnenmyForceSwitch()) {
+        if(initialGameState.isEnemyForceSwitch()) {
             gameState = initialGameState.clone();
             gameState.switchEnemyActiveTo(enemyMoveName);
             return gameState;
@@ -239,21 +251,18 @@ class BattleManager {
        
         
         //we go first
-        if(move.includes('|/choose switch')) { 
-            for(let i = 0; i < moveList.length; i++) {
-                gameState = initialGameState.clone();
-                gameState.switchMyActiveTo(moveName);
-                gameState.enemyMove(enemyMoveName);
-                return gameState;
-            }
+        if(myMove.includes('|/choose switch')) { 
+            gameState = initialGameState.clone();
+            gameState.switchMyActiveTo(moveName);
+            gameState.enemyMove(enemyMoveName);
+            return gameState;
 
         } else if(enemyMove.includes('|/choose switch')) {
-            for(let i = 0; i < moveList.length; i++) {
-                gameState = initialGameState.clone();
-                gameState.switchEnemyActiveTo(enemyMoveName);
-                gameState.myMove(moveName);
-                return gameState;
-            }
+            gameState = initialGameState.clone();
+            gameState.switchEnemyActiveTo(enemyMoveName);
+            gameState.myMove(moveName);
+            return gameState;
+                
         } else {
             
             var gameState = initialGameState.clone();
