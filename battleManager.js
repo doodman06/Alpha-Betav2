@@ -105,7 +105,7 @@ class BattleManager {
         //console.log("Active Enemy");
         //console.log(this.gameState.activeEnemy);
         console.log(this.gameState.enemyPokemonList);
-        var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, false);
+        var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, true);
         console.log(bestMove);
 
         return bestMove;
@@ -120,7 +120,7 @@ class BattleManager {
         this.gameState.setForceSwitch(true);
 
         //TODO: think i can remove the last parameter
-        var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, this.gameState.isForceSwitch());
+        var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, true);
         console.log(bestMove);
         
         return bestMove;
@@ -135,7 +135,7 @@ class BattleManager {
      * @param {number} beta  the maximum score the minimizing player (opponent) is guaranteed
      * @returns the best move to be used at the initial depth or the score of the current game state otherwise
      */
-    alphaBeta(gameState, initialDepth, depth, alpha, beta, maximizing) {
+    alphaBeta(gameState, initialDepth, depth, alpha, beta, maximizing, maximizingMove) {
         //check if the current player is the maximizing player
 
         if(depth == 0 || gameState.myPokemonList.length == 0 || gameState.enemyPokemonList.length == 0) {
@@ -146,10 +146,13 @@ class BattleManager {
             return gameState.evaluateState();
         } 
         
-        var v = -100000;
+        var v;
         var moves = [];
         var moveScores = [];
-        if(!gameState.isForceSwitch()) {
+        if(maximizing) {
+            v = -100000;
+            //get list of possible moves
+            if(!gameState.isForceSwitch()) {
             gameState.myPokemonList[0].moves.forEach(move => {
                 //add the move as an option if there is enough pp
                 if(gameState.isMoveUsable(move)) {
@@ -157,33 +160,40 @@ class BattleManager {
                     moves.push('|/choose move ' + move);
                 }
             });
-        }
-    
-        for(let i = 1; i < gameState.myPokemonList.length; i++) {
-            if(gameState.myPokemonList[i].alive && gameState.myPokemonList[i].name != gameState.getMyActive().name && gameState.myPokemonList[i].hp > 0 ) {
-                moves.push('|/choose switch ' + gameState.myPokemonList[i].name);
             }
-        }
-        for(let i = 0; i < moves.length; i++) {
-            var newGameState = gameState;
-            var simGameStates = this.simulate(newGameState, moves[i]);
-            var minV = 100000;
-            for(let j = 0; j < simGameStates.length; j++) {
-                v = Math.max(v, this.alphaBeta(simGameStates[j], initialDepth, depth - 1, beta, alpha));
-                minV = Math.min(minV, v);
+            for(let i = 1; i < gameState.myPokemonList.length; i++) {
+                if(gameState.myPokemonList[i].alive && gameState.myPokemonList[i].name != gameState.getMyActive().name && gameState.myPokemonList[i].hp > 0 ) {
+                    moves.push('|/choose switch ' + gameState.myPokemonList[i].name);
+                }
+            }
+            for(let i = 0; i < moves.length; i++) {
+            
+                var newGameState = gameState;
+                v = Math.max(v, this.alphaBeta(newGameState, initialDepth, depth - 1, alpha, beta, false, moves[i]));
                 alpha = Math.max(alpha, v);
-                if(beta <= alpha) {
+                moveScores.push(v);
+                if(v >= beta) {
                     break;
                 }
             }
-            if(depth == initialDepth) {
-                moveScores.push(minV);
+
+        } else {
+            v = 100000;
+            moves = this.gameState.getPossibleEnemyMoves();
+            for(let i = 0; i < moves.length; i++) {
+                var newGameState = gameState;
+                var simGameState = this.simulate(newGameState, maximizingMove, moves[i]);
+                v = Math.max(v, this.alphaBeta(simGameState, initialDepth, depth - 1, alpha, beta, true));
+                beta = Math.min(beta, v);
+                if(v <= alpha) {
+                    break;
+                }
             }
-            alpha = Math.max(alpha, v);
-            if(beta <= alpha) {
-                break;
-            }
+
+
         }
+    
+
         if(depth == initialDepth) {
             console.log(moveScores);
             var max = moveScores[0];
@@ -210,72 +220,58 @@ class BattleManager {
      * @param {string} move the move to be simulated
      * @returns {gameStates[]} an array of possible game states
      */
-    simulate(initialGameState, move) {
-        var myPokemon = initialGameState.myPokemonList[0];
-        var moveName = move.split(' ')[2];
-        var enemyPokemon;
+    simulate(initialGameState, myMove, enemyMove) {
+        var moveName = myMove.split(' ')[2];
+        var enemyMoveName = enemyMove.split(' ')[2];
         var gameState;
-        //if force switching like is a Pokemon died the enemy does not take a turn
+        //if force switching like is a Pokemon died the other does not take a turn
         if(initialGameState.isForceSwitch()) {
-            var newGameState = initialGameState.clone();
-            newGameState.switchMyActiveTo(moveName);
-            gameState = newGameState;
+            gameState = initialGameState.clone();
+            gameState.switchMyActiveTo(moveName);
             return gameState;
         }
-        for(let i = 0; i < initialGameState.enemyPokemonList.length; i++) {
-            if(initialGameState.enemyPokemonList[i].name == initialGameState.activeEnemy) {
-                enemyPokemon = initialGameState.enemyPokemonList[i];
-            }
+        if(initialGameState.isEnenmyForceSwitch()) {
+            gameState = initialGameState.clone();
+            gameState.switchEnemyActiveTo(enemyMoveName);
+            return gameState;
         }
-        if(true) { 
-            //we go first
-            if(move.includes('|/choose switch')) { 
-                for(let i = 0; i < moveList.length; i++) {
-                    var newGameState = initialGameState.clone();
-                    newGameState.switchMyActiveTo(moveName);
-                    newGameState.enemyMove(moveList[i]);
-                    gameStates.push(newGameState);
-                }
 
-            } else {
-
+       
+        
+        //we go first
+        if(move.includes('|/choose switch')) { 
             for(let i = 0; i < moveList.length; i++) {
-                var newGameState = initialGameState.clone();
-                const currentMove = Dex.moves.get(moveName);
-                const currentEnemyMove = Dex.moves.get(moveList[i]); 
-
-                if(currentMove.priority > currentEnemyMove.priority) {
-                    newGameState.myMove(moveName);
-                    newGameState.enemyMove(moveList[i]);
-                } else {
-                    newGameState.enemyMove(moveList[i]);
-                    newGameState.myMove(moveName);
-                }
-                gameStates.push(newGameState);
+                gameState = initialGameState.clone();
+                gameState.switchMyActiveTo(moveName);
+                gameState.enemyMove(enemyMoveName);
+                return gameState;
             }
-        }
-        }
-        //enemy switches
-        for(let i = 1; i < initialGameState.enemyPokemonList.length; i++) {
-            if(initialGameState.enemyPokemonList[i].alive && initialGameState.enemyPokemonList[i].name != initialGameState.activeEnemy && initialGameState.enemyPokemonList[i].hp > 0) {
-                var newGameState = initialGameState.clone();
-                newGameState.switchEnemyActiveTo(initialGameState.enemyPokemonList[i].name);
-                if(move.includes('|/choose switch')) {
-                    newGameState.switchMyActiveTo(moveName);
-                } else {
-                    newGameState.myMove(moveName);
-                }
-                gameStates.push(newGameState);
+
+        } else if(enemyMove.includes('|/choose switch')) {
+            for(let i = 0; i < moveList.length; i++) {
+                gameState = initialGameState.clone();
+                gameState.switchEnemyActiveTo(enemyMoveName);
+                gameState.myMove(moveName);
+                return gameState;
             }
+        } else {
+            
+            var gameState = initialGameState.clone();
+            const currentMove = Dex.moves.get(moveName);
+            const currentEnemyMove = Dex.moves.get(enemyMoveName); 
+
+            if(currentMove.priority > currentEnemyMove.priority) {
+                gameState.myMove(moveName);
+                gameState.enemyMove(enemyMoveName);
+            } else {
+                gameState.enemyMove(enemyMoveName);
+                gameState.myMove(moveName);
+            }
+
+            return gameState;
         }
 
-        
-        
-        return gameStates;
-
-    
-        
-    
+        return gameState;
 
     }
     

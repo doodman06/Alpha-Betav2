@@ -157,6 +157,26 @@ class gameState {
         }
     }
 
+    getPossibleEnemyMoves() {
+        var moves = [];
+        var enemyPokemon = this.getActiveEnemy();
+        if(!this.isEnemyForceSwitch()) {
+            var dexPokemon = Dex.species.get(enemyPokemon.name);
+            dexPokemon.learnset.forEach(move => {
+                var newMove = "|/choose move " + move;
+                moves.push(newMove);
+            });
+        }
+        //enemy switches to a different pokmeon
+        for(let i = 0; i < this.enemyPokemonList; i++) {
+            if(this.enemyPokemonList[i].name != enemyPokemon.name && this.enemyPokemonList[i].alive && this.enemyPokemonList[i].hp > 0) {
+                var newMove = "|/choose switch " + this.enemyPokemonList[i].name;
+                moves.push(newMove);
+            }
+        }
+        return moves;
+    }
+
     /**
      * sets the pokemon at a certain position in the list
      * @param {number} pos the position of the pokemon in the list
