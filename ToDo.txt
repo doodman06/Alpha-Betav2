@@ -64,3 +64,7 @@ Added force switching for enemy to simulation such that when the enemy Pokemon i
 Tried using an altered version of alpha-beta where simulate returns a set of possible states based on the possible enemy moves and the alpha beta works recusivley on those stats.
 Had to use worker threads as this took far too much time.
 However didnt work well and was far more time consuming so probably wont continue it.
+
+3/2/2024
+Upon furhter thinking decided to continue this and fixed the ALpha beta algorithim to use worker threads.
+Alpha - Beta algorithim makes the "Paranoid Assumption" that the enemy player knows the move you will choose on any given turn.

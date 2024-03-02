@@ -40,6 +40,16 @@ async function sendMove() {
 	});
 }
 
+async function sendMoveFromRequest() {
+	console.log("sendMove");
+	var worker = new Worker('./sendMoveFromRequest.js', {workerData: battleManager});
+	worker.on('message', (move) => {
+		if(move == null) return;
+		console.log(roomId  + move);
+		send(roomId  + move);
+	});
+}
+
 
 
 
@@ -140,18 +150,12 @@ exports.parse = {
 						battleManager.updateData(JSON.parse(spl[2]));
 					}
 					if(JSON.parse(spl[2]).wait) return;
-					var move = battleManager.chooseRandomMove();
-					console.log(roomId  + move);
-					if(move) {
-						send(roomId  + move);
-					}
+					sendMoveFromRequest();
 				}
 				break;
 			case 'error':
 				if(spl[2].includes("[Invalid choice]")){
-					var move = battleManager.chooseRandomMove();
-					console.log(roomId  + move);
-					send(roomId  +move);
+					sendMoveFromRequest();
 				}
 				break;
 			case 'updatesearch':

@@ -80,7 +80,7 @@ class BattleManager {
 
 
 
-    chooseRandomMove() {
+    chooseMoveFromRequest() {
         //if in a teampreview use default loudout
         if(this.data.teamPreview) {
             return '|/choose team 123456';
@@ -101,12 +101,7 @@ class BattleManager {
      * @returns {string} move to be used
      */
     chooseMove() {
-        //if in a teampreview use default loudout
-        if(this.data.teamPreview) {
-            return '|/choose team 123456';
-        }
-
-        //console.log(this.data);
+        
         //if no active pokemon, switch
         if(!this.data.active) {
             console.log("no active pokemon");
@@ -132,7 +127,7 @@ class BattleManager {
     forceSwitch() {
         this.gameState.setForceSwitch(true);
 
-        var bestMove = this.alphaBeta(this.gameState, 2, 2, -100000, 100000, true);
+        var bestMove = this.alphaBeta(this.gameState, 4, 4, -100000, 100000, true);
         console.log(bestMove);
         
         return bestMove;
