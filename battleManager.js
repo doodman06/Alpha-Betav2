@@ -13,10 +13,19 @@ class BattleManager {
      * @param {number} gen The Generation of Pokemon of the current battle
      */
     constructor(jsonData, gen) {
+        /**
+         * @type {JSON} JSON data received from the server
+         */
         this.data = jsonData;
+        /**
+         * @type {gameState} the current game state
+         */
         this.gameState = new gameState();
         this.parseData(jsonData);
         generation = Generations.get(gen);
+        /**
+         * @type {Generations} the generation of Pokemon of the current battle
+         */
         this.gen = generation;
         
     }
@@ -80,6 +89,10 @@ class BattleManager {
 
 
 
+    /**
+     * Selects the move to be used from a JSON data request
+     * @returns {string} the move to be used
+     */
     chooseMoveFromRequest() {
         //if in a teampreview use default loudout
         if(this.data.teamPreview) {
@@ -140,7 +153,9 @@ class BattleManager {
      * @param {number} depth the current depth of the search tree
      * @param {number} alpha the minimum score the maximizing player (AI) is guaranteed
      * @param {number} beta  the maximum score the minimizing player (opponent) is guaranteed
-     * @returns the best move to be used at the initial depth or the score of the current game state otherwise
+     * @param {boolean} maximizing if the current player is the maximizing player
+     * @param {string|null} maximizingMove the move to be used by the maximizing player, is null if the current player is maximizing player
+     * @returns {string|number} the best move to be used at the initial depth or the score of the current game state otherwise
      */
     alphaBeta(gameState, initialDepth, depth, alpha, beta, maximizing, maximizingMove) {
         //check if the current player is the maximizing player
@@ -224,8 +239,9 @@ class BattleManager {
     /**
      * Simulate the game state after a move is used using the worst case scenario
      * @param {gameState} initialGameState the current game state to be simulated
-     * @param {string} move the move to be simulated
-     * @returns {gameStates[]} an array of possible game states
+     * @param {string} myMove the move to be simulated
+     * @param {string} enemyMove the move to be simulated for the enemy
+     * @returns {gameState} the game state after the moves are used
      */
     simulate(initialGameState, myMove, enemyMove) {
         var moveName = myMove.split(' ')[2];

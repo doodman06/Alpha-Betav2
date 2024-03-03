@@ -14,20 +14,68 @@ class myPokemon {
      */
     constructor(name, condition, moveList, statsList, pos) {
         let namespl = name.split(',');
+        
+        /**
+         * @type {string} the name of the pokemon
+         */
         this.name = namespl[0];
+        
+        /**
+         * @type {string[]} the types of the pokemon
+         */
         this.types = Dex.species.get(this.name).types;
+        
         var spl = condition.split('/');
-        var maxHP = parseInt(spl[1]);
-        var currenthp = parseInt(spl[0]);
+        /**
+         * @type {number} the maximum hp of the pokemon
+         */
+        this.maxHP = parseInt(spl[1]);
+        
+        /**
+         * @type {number} the current hp of the pokemon
+         */
+        this.hp = parseInt(spl[0]);
+        
+        /**
+         * @type {number} the attack stat of the pokemon
+         */
         this.atk = statsList.atk;
+        
+        /**
+         * @type {number} the defense stat of the pokemon
+         */
         this.def = statsList.def;
+        
+        /**
+         * @type {number} the special attack stat of the pokemon
+         */
         this.spa = statsList.spa;
+        
+        /**
+         * @type {number} the special defense stat of the pokemon
+         */
         this.spd = statsList.spd;
+        
+        /**
+         * @type {number} the speed stat of the pokemon
+         */
         this.spe = statsList.spe;
-        this.maxHP = maxHP;
-        this.hp = currenthp;
+        
+        /**
+         * @type {string[]} the list of moves the pokemon has
+         */
         this.moves = moveList;
+        
+        /**
+         * @type {number} the position of the pokemon in the team
+         */
         this.pos = pos;
+
+        /**
+         * @type {boolean} whether the pokemon is alive or not
+         */
+        this.alive;
+        
         if(!condition){
             this.alive = false;
         } else {
@@ -36,7 +84,13 @@ class myPokemon {
         if(this.hp == 0){
             this.alive = false;
         }
+        /**
+         * @type {Object} the stat boosts of the pokemon
+         */
         this.statBoosts = {atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+        /**
+         * @type {number[]} the pp of the moves the pokemon has
+         */
         this.pp = [];
         this.moves.forEach(move => {
             const moveData = Dex.moves.get(move);

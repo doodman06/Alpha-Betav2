@@ -68,3 +68,6 @@ However didnt work well and was far more time consuming so probably wont continu
 3/2/2024
 Upon furhter thinking decided to continue this and fixed the ALpha beta algorithim to use worker threads.
 Alpha - Beta algorithim makes the "Paranoid Assumption" that the enemy player knows the move you will choose on any given turn.
+
+3/3/2024
+Added JSDoc comments
