@@ -71,3 +71,7 @@ Alpha - Beta algorithim makes the "Paranoid Assumption" that the enemy player kn
 
 3/3/2024
 Added JSDoc comments
+
+3/3/2024
+Added config file for JSDoc
+Command to use is: jsdoc -c "path\to\config.json" -d docs
