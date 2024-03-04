@@ -75,3 +75,7 @@ Added JSDoc comments
 3/3/2024
 Added config file for JSDoc
 Command to use is: jsdoc -c "path\to\config.json" -d docs
+
+3/4/2024
+Added a transposition table.
+Uses object-hash. Still need to implement it in Alpha Beta
