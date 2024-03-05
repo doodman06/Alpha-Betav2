@@ -82,3 +82,6 @@ Uses object-hash. Still need to implement it in Alpha Beta
 
 3/4/2024
 Tried updating the table to account for collisions
+
+3/5/2024
+Changed it to use Map.
