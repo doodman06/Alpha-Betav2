@@ -86,6 +86,7 @@ global.BattleManager = require('./battleManager.js');
 global.gameState = require('./gameState.js');
 global.myPokemon = require('./myPokemon.js');
 global.enemyPokemon = require('./enemyPokemon.js');
+global.TranspositionTable = require('./transpositionTable.js');
 global.Connection = null;
 global.generation = 6;
 const dns = require('node:dns');

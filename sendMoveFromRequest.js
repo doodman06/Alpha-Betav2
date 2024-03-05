@@ -6,6 +6,7 @@ global.BattleManager = require('./battleManager.js');
 global.gameState = require('./gameState.js');
 global.myPokemon = require('./myPokemon.js');
 global.enemyPokemon = require('./enemyPokemon.js');
+global.TranspositionTable = require('./transpositionTable.js');
 global.generation = 6;
 
 console.log(workerData);

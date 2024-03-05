@@ -28,18 +28,18 @@ class TranspositionTable {
      * @param {number} value the value of the game state
      * @param {number} depthSearched the depth the game state was searched to
      */
-    add(gameState, value, depthSearched) {
+    add(gameState, value, depthSearched, flag) {
         var myHash = this.hashGameState(gameState);
         
         if(this.map.has(myHash)){
             var tempDepth = this.map.get(myHash).depthSearched;
             if(tempDepth < depthSearched){
-                this.map.set(myHash, {value: value, depthSearched: depthSearched});
+                this.map.set(myHash, {evaluationValue: value, depthSearched: depthSearched, flag: flag});
             } else {
                 return;
             }
         } else {
-            this.map.set(myHash, {value: value, depthSearched: depthSearched});
+            this.map.set(myHash, {evaluationValue: value, depthSearched: depthSearched, flag: flag});
         }
     }
 
@@ -47,7 +47,7 @@ class TranspositionTable {
      * gets a game state from the table
      * @param {gameState} gameState the game state
      * @param {number} currentDepth the current depth of the search
-     * @returns {number} the value of the game state
+     * @returns {Object} an object containing the value, depth, and alpha and beta values of the game state
      */
     get(gameState, currentDepth) {
         var myHash = this.hashGameState(gameState);
@@ -55,7 +55,7 @@ class TranspositionTable {
         if(this.map.has(myHash)){
             var tempDepth = this.map.get(myHash).depthSearched;
             if(tempDepth >= currentDepth){
-                return this.map.get(myHash).value;
+                return this.map.get(myHash);
             }
         }
         return null;

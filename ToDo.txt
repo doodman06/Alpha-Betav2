@@ -85,3 +85,8 @@ Tried updating the table to account for collisions
 
 3/5/2024
 Changed it to use Map.
+
+3/6/2024
+Implemented to transposition table into Alpha - Beta.
+Based on psuedocode in https://webdocs.cs.ualberta.ca/~tony/OldPapers/icca.Mar1986.pp3-18.pdf
+Added code for tracking the time taken for moves and storing them in a file. Can be used to tracking the improvement gained from a transposition table.

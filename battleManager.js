@@ -126,7 +126,14 @@ class BattleManager {
         //console.log("Active Enemy");
         //console.log(this.gameState.activeEnemy);
         console.log(this.gameState.enemyPokemonList);
-        var bestMove = this.alphaBeta(this.gameState, 4, 4, -100000, 100000, true);
+        var table = new TranspositionTable();
+        var startTime = Date.now();
+        var bestMove = this.alphaBeta(this.gameState, 4, 4, -100000, 100000, table, true);
+        const fs = require('fs');
+        //change to timeWihoutTransposition.txt if using without transposition table
+        //just to record the time taken
+        fs.appendFileSync('timeTransposition.txt',(Date.now() - startTime) + ",");
+        console.log("Time: " + (Date.now() - startTime));
         console.log(bestMove);
 
         return bestMove;
@@ -140,7 +147,8 @@ class BattleManager {
     forceSwitch() {
         this.gameState.setForceSwitch(true);
 
-        var bestMove = this.alphaBeta(this.gameState, 4, 4, -100000, 100000, true);
+        var table = new TranspositionTable();
+        var bestMove = this.alphaBeta(this.gameState, 4, 4, -100000, 100000, table, true);
         console.log(bestMove);
         
         return bestMove;
@@ -153,12 +161,14 @@ class BattleManager {
      * @param {number} depth the current depth of the search tree
      * @param {number} alpha the minimum score the maximizing player (AI) is guaranteed
      * @param {number} beta  the maximum score the minimizing player (opponent) is guaranteed
+     * @param {TranspositionTable} table the transposition table to be used for memoization
      * @param {boolean} maximizing if the current player is the maximizing player
      * @param {string|null} maximizingMove the move to be used by the maximizing player, is null if the current player is maximizing player
      * @returns {string|number} the best move to be used at the initial depth or the score of the current game state otherwise
      */
-    alphaBeta(gameState, initialDepth, depth, alpha, beta, maximizing, maximizingMove) {
-        //check if the current player is the maximizing player
+    alphaBeta(gameState, initialDepth, depth, alpha, beta, table,  maximizing, maximizingMove) {
+        
+
 
         if(depth == 0 || gameState.myPokemonList.length == 0 || gameState.enemyPokemonList.length == 0) {
            // console.log("evaluate state");
@@ -167,6 +177,22 @@ class BattleManager {
            
             return gameState.evaluateState();
         } 
+
+        if(table.get(gameState, depth) != null) {
+            var ttEntry = table.get(gameState, depth);
+            if(ttEntry.flag == "VALID") {
+                return ttEntry.evaluationValue;
+            }
+            if(ttEntry.flag == "LOWERBOUND") {
+                alpha = Math.max(alpha, ttEntry.evaluationValue);
+            }
+            if(ttEntry.flag == "UPPERBOUND") {
+                beta = Math.min(beta, ttEntry.evaluationValue);
+            }
+            if(alpha >= beta) {
+                return ttEntry.evaluationValue;
+            }
+        }
         
         var v;
         var moves = [];
@@ -191,7 +217,7 @@ class BattleManager {
             for(let i = 0; i < moves.length; i++) {
             
                 var newGameState = gameState.clone();
-                v = Math.max(v, this.alphaBeta(newGameState, initialDepth, depth - 1, alpha, beta, false, moves[i]));
+                v = Math.max(v, this.alphaBeta(newGameState, initialDepth, depth - 1, alpha, beta, table, false, moves[i]));
                 alpha = Math.max(alpha, v);
                 moveScores.push(v);
                 if(v >= beta) {
@@ -205,7 +231,7 @@ class BattleManager {
             for(let i = 0; i < moves.length; i++) {
                 var newGameState = gameState.clone();
                 var simGameState = this.simulate(newGameState, maximizingMove, moves[i]);
-                v = Math.min(v, this.alphaBeta(simGameState, initialDepth, depth - 1, alpha, beta, true));
+                v = Math.min(v, this.alphaBeta(simGameState, initialDepth, depth - 1, alpha, beta, table, true));
                 beta = Math.min(beta, v);
                 if(v <= alpha) {
                     break;
@@ -230,6 +256,16 @@ class BattleManager {
             return bestMove;
         }
 
+        var flag = "VALID"
+        if(v <= alpha) {
+            flag = "UPPERBOUND";
+        }
+        if(v >= beta) {
+            flag = "LOWERBOUND";
+        }
+        table.add(gameState, v, depth, flag);
+
+
         return v;
     }
 
@@ -238,7 +274,7 @@ class BattleManager {
 
     /**
      * Simulate the game state after a move is used using the worst case scenario
-     * @param {gameState} initialGameState the current game state to be simulated
+     * @param {gameState} initialGameStatepha, beta the current game state to be simulated
      * @param {string} myMove the move to be simulated
      * @param {string} enemyMove the move to be simulated for the enemy
      * @returns {gameState} the game state after the moves are used
