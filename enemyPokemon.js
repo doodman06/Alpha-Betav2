@@ -9,10 +9,30 @@ class enemyPokemon {
      */
     constructor(name) {
         let namespl = name.split(',');
+        
+        /**
+         * @type {string} the name of the pokemon
+         */
         this.name = namespl[0];
+        
+        /**
+         * @type {string[]} the types of the pokemon
+         */
         this.types = Dex.species.get(this.name).types;
+        
+        /**
+         * @type {number} the maximum hp of the pokemon
+         */
         this.maxHP = 100;
+        
+        /**
+         * @type {number} the current hp of the pokemon
+         */
         this.hp = 100;
+        
+        /**
+         * @type {Object} the stat boosts of the pokemon
+         */
         this.statBoosts = {atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
         
     };
@@ -36,10 +56,18 @@ class enemyPokemon {
         }
     }
 
+    /**
+     * sets the stat boosts of the enemy pokemon
+     * @param {Object} statBoosts the stat boosts to be set
+     */
     setStatBoost(statBoosts) {
         this.statBoosts = statBoosts;
     }
 
+    /**
+     * clones the enemy pokemon
+     * @returns {enemyPokemon} a clone of the enemy pokemon
+     */
     clone() {
         var clone = new enemyPokemon(this.name);
         clone.hp = this.hp;

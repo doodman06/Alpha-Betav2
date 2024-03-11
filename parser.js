@@ -22,12 +22,33 @@ var https = require('https');
 var url = require('url');
 const {Teams} = require('pokemon-showdown');
 const team = require('./Team1.json');
+const {Worker, isMainThread, parentPort, workerData} = require('worker_threads');
 var battlestarted = false;
 var enemysaved = false;
 var enemyName = [];
 var roomId;
 var gen;
 var battleManager = null;
+
+
+async function sendMove() {
+	console.log("sendMove");
+	var worker = new Worker('./sendMove.js', {workerData: battleManager});
+	worker.on('message', (move) => {
+		console.log(roomId  + move);
+		send(roomId  + move);
+	});
+}
+
+async function sendMoveFromRequest() {
+	console.log("sendMove");
+	var worker = new Worker('./sendMoveFromRequest.js', {workerData: battleManager});
+	worker.on('message', (move) => {
+		if(move == null) return;
+		console.log(roomId  + move);
+		send(roomId  + move);
+	});
+}
 
 
 
@@ -105,11 +126,7 @@ exports.parse = {
 
 
 			if(spl[i] == "turn") {
-				var move = battleManager.chooseMove();
-					console.log(roomId  + move);
-					if(move) {
-						send(roomId  + move);
-					}
+				sendMove();
 			}
 		}
 
@@ -133,18 +150,12 @@ exports.parse = {
 						battleManager.updateData(JSON.parse(spl[2]));
 					}
 					if(JSON.parse(spl[2]).wait) return;
-					var move = battleManager.chooseRandomMove();
-					console.log(roomId  + move);
-					if(move) {
-						send(roomId  + move);
-					}
+					sendMoveFromRequest();
 				}
 				break;
 			case 'error':
 				if(spl[2].includes("[Invalid choice]")){
-					var move = battleManager.chooseRandomMove();
-					console.log(roomId  + move);
-					send(roomId  +move);
+					sendMoveFromRequest();
 				}
 				break;
 			case 'updatesearch':
@@ -165,6 +176,7 @@ exports.parse = {
 					path: this.actionUrl.pathname,
 					agent: false
 				};
+				
 
 				var data;
 				if (!Config.pass) {

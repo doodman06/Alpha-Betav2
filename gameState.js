@@ -1,6 +1,8 @@
 const {Dex} = require('pokemon-showdown');
 const {calculate, Pokemon, Move, Generations} = require('@smogon/calc');
 const pokemon = require('pokemon-showdown/dist/sim/pokemon');
+const myPokemon = require('./myPokemon');
+const enemyPokemon = require('./enemyPokemon');
 /**
  * Stores the game state
  */
@@ -36,29 +38,67 @@ class gameState {
         /**
          * @type {Generations} the generation of the current battle
          */
-        this.gen = generation;
+        this.gen = Generations.get(6);
 
 
+    }
+
+    /**
+     * sets all the variables of the game state
+     * @param {boolean} forceSwitch a boolean value of whether a pokemon must be switched to
+     * @param {boolean} enemyForceSwitch a boolean value of whether the enemy must switch to a different pokemon
+     * @param {myPokemon[]} myPokemonList list of the AI's pokemon
+     * @param {enemyPokemon[]} enemyPokemonList list of the enemy's pokemon
+     * @param {string} activeEnemy the name of the currently active enemy pokemon
+     * @param {Generations} gen the generation of the current battle
+     */
+    setAll(forceSwitch, enemyForceSwitch, myPokemonList, enemyPokemonList, activeEnemy, gen) {
+        this.forceSwitch = forceSwitch;
+        this.enemyForceSwitch = enemyForceSwitch;
+        this.myPokemonList = myPokemonList;
+        this.enemyPokemonList = enemyPokemonList;
+        this.activeEnemy = activeEnemy;
+        this.gen = gen;
     }
 
     //setters and getters for variables
 
+    /**
+     * sets the list of the AI's pokemon
+     * @param {myPokemon[]} myPokemonList list of the AI's pokemon
+     */
     setMyPokemonList(myPokemonList) {
         this.myPokemonList = myPokemonList;
     }
     
+    /**
+     * adds a pokemon to the AI's pokemon list
+     * @param {myPokemon} pokemon a pokemon to be added to the AI's pokemon list
+     */
     addMyPokemon(pokemon) {
         this.myPokemonList.push(pokemon);
     }
 
+    /**
+     * adds a pokemon to the enemy's pokemon list
+     * @param {enemyPokemon} pokemon a pokemon to be added to the enemy's pokemon list
+     */
     addEnemyPokemon(pokemon) {
         this.enemyPokemonList.push(pokemon);
     }
 
+    /**
+     * sets the list of the enemy's pokemon
+     * @param {enemyPokemon[]} enemyPokemonList a list of the enemy's pokemon
+     */
     setEnemyPokemonList(enemyPokemonList) {
         this.enemyPokemonList = enemyPokemonList;
     }
 
+    /**
+     * sets the active enemy pokemon
+     * @param {string} activeEnemy the name of the currently active enemy pokemon
+     */
     setActiveEnemy(activeEnemy) {
         this.activeEnemy = activeEnemy;
     }
@@ -146,6 +186,33 @@ class gameState {
                 return true;
             }
         }
+    }
+
+    /**
+     * gets the list of possible moves the enemy can make
+     * @returns {string[]} the list of possible moves the enemy can make
+     */
+    getPossibleEnemyMoves() {
+        var moves = [];
+        var enemyPokemon = this.getActiveEnemy();
+        if(!this.isEnemyForceSwitch()) {
+            var learnsetData = Dex.species.getLearnsetData(Dex.toID(enemyPokemon.name));  
+            var moveList = [];
+            moveList = Object.keys(learnsetData.learnset);
+            for(let i = 0; i < moveList.length; i++) {
+                var newMove = "|/choose move " + moveList[i];
+                moves.push(newMove);
+            }
+        }
+            
+        //enemy switches to a different pokmeon
+        for(let i = 0; i < this.enemyPokemonList; i++) {
+            if(this.enemyPokemonList[i].name != enemyPokemon.name && this.enemyPokemonList[i].alive && this.enemyPokemonList[i].hp > 0) {
+                var newMove = "|/choose switch " + this.enemyPokemonList[i].name;
+                moves.push(newMove);
+            }
+        }
+        return moves;
     }
 
     /**

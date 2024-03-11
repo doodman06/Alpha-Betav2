@@ -59,3 +59,40 @@ Resets bot state after a battle is over.
 
 2/28/2024
 Added force switching for enemy to simulation such that when the enemy Pokemon is dead the next turn is spent switching to a new Pokemon.
+
+2/28/2024
+Tried using an altered version of alpha-beta where simulate returns a set of possible states based on the possible enemy moves and the alpha beta works recusivley on those stats.
+Had to use worker threads as this took far too much time.
+However didnt work well and was far more time consuming so probably wont continue it.
+
+3/2/2024
+Upon furhter thinking decided to continue this and fixed the ALpha beta algorithim to use worker threads.
+Alpha - Beta algorithim makes the "Paranoid Assumption" that the enemy player knows the move you will choose on any given turn.
+
+3/3/2024
+Added JSDoc comments
+
+3/3/2024
+Added config file for JSDoc
+Command to use is: jsdoc -c "path\to\config.json" -d docs
+
+3/4/2024
+Added a transposition table.
+Uses object-hash. Still need to implement it in Alpha Beta
+
+3/4/2024
+Tried updating the table to account for collisions
+
+3/5/2024
+Changed it to use Map.
+
+3/6/2024
+Implemented to transposition table into Alpha - Beta.
+Based on psuedocode in https://webdocs.cs.ualberta.ca/~tony/OldPapers/icca.Mar1986.pp3-18.pdf
+Added code for tracking the time taken for moves and storing them in a file. Can be used to tracking the improvement gained from a transposition table.
+
+3/6/2024
+Moved time files to their own directory and ran some tests.
+
+3/11/2024
+Ran more test, still need to do more.
