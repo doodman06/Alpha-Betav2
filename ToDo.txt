@@ -93,3 +93,6 @@ Added code for tracking the time taken for moves and storing them in a file. Can
 
 3/6/2024
 Moved time files to their own directory and ran some tests.
+
+3/11/2024
+Ran more test, still need to do more.

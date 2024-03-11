@@ -132,7 +132,7 @@ class BattleManager {
         const fs = require('fs');
         //change to timeWihoutTransposition.txt if using without transposition table
         //just to record the time taken
-        fs.appendFileSync('Logs/timeWithoutTransposition.txt',((Date.now() - startTime) / 1000) + ",");
+        fs.appendFileSync('Logs/timeTransposition.txt',((Date.now() - startTime) / 1000) + ",");
         console.log("Time: " + ((Date.now() - startTime)  / 1000));
         console.log(bestMove);
 
@@ -178,7 +178,7 @@ class BattleManager {
             return gameState.evaluateState();
         } 
 
-        /* if(table.get(gameState, depth) != null) {
+        if(table.get(gameState, depth) != null) {
             var ttEntry = table.get(gameState, depth);
             if(ttEntry.flag == "VALID") {
                 return ttEntry.evaluationValue;
@@ -192,7 +192,7 @@ class BattleManager {
             if(alpha >= beta) {
                 return ttEntry.evaluationValue;
             }
-        } */
+        }
         
         var v;
         var moves = [];
@@ -256,14 +256,14 @@ class BattleManager {
             return bestMove;
         }
 
-        /* var flag = "VALID"
+        var flag = "VALID"
         if(v <= alpha) {
             flag = "UPPERBOUND";
         }
         if(v >= beta) {
             flag = "LOWERBOUND";
         }
-        table.add(gameState, v, depth, flag); */
+        table.add(gameState, v, depth, flag);
 
 
         return v;
