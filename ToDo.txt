@@ -96,3 +96,6 @@ Moved time files to their own directory and ran some tests.
 
 3/11/2024
 Ran more test, still need to do more.
+
+3/12/2024
+Added move ordering. Ran some test with it.

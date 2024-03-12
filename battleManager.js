@@ -132,7 +132,7 @@ class BattleManager {
         const fs = require('fs');
         //change to timeWihoutTransposition.txt if using without transposition table
         //just to record the time taken
-        fs.appendFileSync('Logs/timeTransposition.txt',((Date.now() - startTime) / 1000) + ",");
+        fs.appendFileSync('Logs/timeTranspositionMoveOrdering.txt',((Date.now() - startTime) / 1000) + ",");
         console.log("Time: " + ((Date.now() - startTime)  / 1000));
         console.log(bestMove);
 
@@ -214,6 +214,15 @@ class BattleManager {
                     moves.push('|/choose switch ' + gameState.myPokemonList[i].name);
                 }
             }
+            //start move ordering
+            var moveOrderScores = [];
+            for(let i = 0; i < moves.length; i++) {
+                var newGameState = gameState.clone();
+                var simGameState = this.simulatemyMove(newGameState, moves[i]);
+                moveOrderScores.push(simGameState.evaluateState());
+            }
+            moves.sort((a, b) => moveOrderScores[moves.indexOf(b)] - moveOrderScores[moves.indexOf(a)]);
+            //end move ordering
             for(let i = 0; i < moves.length; i++) {
             
                 var newGameState = gameState.clone();
@@ -228,6 +237,15 @@ class BattleManager {
         } else {
             v = 100000;
             moves = this.gameState.getPossibleEnemyMoves();
+            //start move ordering
+            var moveOrderScores = [];
+            for(let i = 0; i < moves.length; i++) {
+                var newGameState = gameState.clone();
+                var simGameState = this.simulate(newGameState, maximizingMove, moves[i]);
+                moveOrderScores.push(simGameState.evaluateState());
+            }
+            moves.sort((a, b) => moveOrderScores[moves.indexOf(a)] - moveOrderScores[moves.indexOf(b)]);
+            //end move ordering
             for(let i = 0; i < moves.length; i++) {
                 var newGameState = gameState.clone();
                 var simGameState = this.simulate(newGameState, maximizingMove, moves[i]);
@@ -329,6 +347,26 @@ class BattleManager {
 
         return gameState;
 
+    }
+
+    simulatemyMove(initialGameState, myMove) {
+        var moveName = myMove.split(' ')[2];
+        var gameState;
+        //if force switching like is a Pokemon died the other does not take a turn
+        if(myMove.includes('|/choose switch')) { 
+            gameState = initialGameState.clone();
+            gameState.switchMyActiveTo(moveName);
+            return gameState;
+        }
+        if(initialGameState.isForceSwitch()) {
+            gameState = initialGameState.clone();
+            gameState.switchMyActiveTo(moveName);
+            return gameState;
+        }
+
+        gameState = initialGameState.clone();
+        gameState.myMove(moveName);
+        return gameState;
     }
     
 }
