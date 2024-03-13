@@ -1,6 +1,7 @@
 const {Dex} = require('pokemon-showdown');
 const {calculate, Pokemon, Move, Generations} = require('@smogon/calc');
 const pokemon = require('pokemon-showdown/dist/sim/pokemon');
+const gameState = require('./gameState');
 
 /**
  * Manages the state of the battle and the AI
@@ -349,6 +350,12 @@ class BattleManager {
 
     }
 
+    /**
+     * Simulate the game state after the AI uses a move
+     * @param {gameState} initialGameState the current game state to be simulated
+     * @param {string} myMove the move to be simulated
+     * @returns {gamestate} the game state after the move is used
+     */
     simulatemyMove(initialGameState, myMove) {
         var moveName = myMove.split(' ')[2];
         var gameState;

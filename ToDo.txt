@@ -99,3 +99,8 @@ Ran more test, still need to do more.
 
 3/12/2024
 Added move ordering. Ran some test with it.
+
+3/13/2024
+Added JSDOC comments.
+Changed config to connect to main server instead of local server, just to test it.
+Ran more tests.
