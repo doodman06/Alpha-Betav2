@@ -116,6 +116,7 @@ exports.parse = {
 
 			//reset everythin once the battle is over
 			if(spl[i] == "win"){
+				send(roomId + "|/savereplay");
 				battleManager = null;
 				battlestarted = false;
 				enemyName = [];

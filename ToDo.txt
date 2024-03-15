@@ -104,3 +104,6 @@ Added move ordering. Ran some test with it.
 Added JSDOC comments.
 Changed config to connect to main server instead of local server, just to test it.
 Ran more tests.
+
+3/15/2024
+Did more testing and added saving of replays after battle.
