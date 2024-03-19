@@ -38,7 +38,7 @@ class gameState {
         /**
          * @type {Generations} the generation of the current battle
          */
-        this.gen = Generations.get(6);
+        this.gen = generation
 
 
     }

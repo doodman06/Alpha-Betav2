@@ -145,7 +145,7 @@ exports.parse = {
 				if(spl[2]){
 					console.log()
 					if(!battleManager){
-						battleManager = new BattleManager(JSON.parse(spl[2]), gen);
+						battleManager = new BattleManager(JSON.parse(spl[2]), gen, Config.transpositionTable, Config.moveOrdering, Config.depth);
 					}
 					else{
 						battleManager.updateData(JSON.parse(spl[2]));

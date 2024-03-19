@@ -1,8 +1,8 @@
 /**
  * Attribution:
- * The whole of this config.js file is from https://github.com/TalkTakesTime/Pokemon-Showdown-Bot/blob/master/config-example.js
+ * Part of this config.js file (Liness 8 - 49) is from https://github.com/TalkTakesTime/Pokemon-Showdown-Bot/blob/master/config-example.js
  * It was taken from this project to simplify the process of connecting to the server.
- * Is was edited to connect the bot to the local server.
+ * Is was edited to connect using the bot's credentials.
  */
 
 // The WEBSOCKET server and port the bot should connect to.
@@ -47,4 +47,8 @@ exports.secprotocols = [];
 // 4 = error, ok
 // 5 = error
 exports.debuglevel = 3;
+
+exports.depth = 4;
+exports.transpositionTable = false;
+exports.moveOrdering = false;
 

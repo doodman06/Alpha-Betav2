@@ -107,3 +107,8 @@ Ran more tests.
 
 3/15/2024
 Did more testing and added saving of replays after battle.
+
+3/19/2024
+Added the option to use transpotion table and move ordring in config file.
+Automatically writes time to the correct file.
+Still need to enable setting depth in config.
