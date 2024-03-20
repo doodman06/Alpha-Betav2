@@ -148,7 +148,8 @@ class BattleManager {
         console.log(this.gameState.enemyPokemonList);
         var table = new TranspositionTable();
         var startTime = Date.now();
-        var bestMove = this.alphaBeta(this.gameState, 4, 4, -100000, 100000, table, true);
+        var depth = this.maxDepth;
+        var bestMove = this.alphaBeta(this.gameState, depth, depth, -100000, 100000, table, true);
         const fs = require('fs');
         //just to record the time taken
         var filetoWrite;
@@ -178,7 +179,8 @@ class BattleManager {
         this.gameState.setForceSwitch(true);
 
         var table = new TranspositionTable();
-        var bestMove = this.alphaBeta(this.gameState, 4, 4, -100000, 100000, table, true);
+        var depth = this.maxDepth;
+        var bestMove = this.alphaBeta(this.gameState, depth, depth, -100000, 100000, table, true);
         console.log(bestMove);
         
         return bestMove;
