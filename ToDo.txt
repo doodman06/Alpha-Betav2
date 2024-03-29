@@ -116,3 +116,7 @@ Still need to enable setting depth in config.
 3/20/2024
 Updated to use depth defined in config.
 Still need to change file name based on depth.
+
+3/29/2024
+Updated to use deterministic simulation or not in config.
+Added changes to file name based on settings.

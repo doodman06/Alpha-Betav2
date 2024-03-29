@@ -16,7 +16,7 @@ class BattleManager {
      * @param {boolean} useMoveOrdering if the AI should use move ordering
      * @param {number} maxDepth the maximum depth of the search tree
      */
-    constructor(jsonData, gen, useTranspositionTable, useMoveOrdering, maxDepth) {
+    constructor(jsonData, gen, useTranspositionTable, useMoveOrdering, maxDepth, deterministic) {
         /**
          * @type {JSON} JSON data received from the server
          */
@@ -47,6 +47,8 @@ class BattleManager {
          */
         this.useMoveOrdering = useMoveOrdering;
         this.maxDepth = maxDepth;
+
+        this.deterministic = deterministic;
         
     }
     /**
@@ -154,15 +156,16 @@ class BattleManager {
         //just to record the time taken
         var filetoWrite;
         if(this.useTranspositionTable && this.useMoveOrdering) {
-            filetoWrite = 'Logs/timeTranspositionMoveOrdering.txt';
+            filetoWrite = 'Logs/timeTranspositionMoveOrdering';
         } else if(this.useTranspositionTable) {
-            filetoWrite = 'Logs/timeTransposition.txt';
+            filetoWrite = 'Logs/timeTransposition';
         } else if(this.useMoveOrdering) {
-            filetoWrite = 'Logs/timeMoveOrdering.txt';
+            filetoWrite = 'Logs/timeMoveOrdering';
         } else {
-            filetoWrite = 'Logs/timeWithoutTransposition.txt';
+            filetoWrite = 'Logs/timeWithoutTransposition';
         }
-
+        filetoWrite += 'Depth' + this.maxDepth;
+        filetoWrite += 'Deterministic' + this.deterministic;
         fs.appendFileSync(filetoWrite ,((Date.now() - startTime) / 1000) + ",");
         console.log("Time: " + ((Date.now() - startTime)  / 1000));
         console.log(bestMove);
@@ -359,13 +362,13 @@ class BattleManager {
         if(myMove.includes('|/choose switch')) { 
             gameState = initialGameState.clone();
             gameState.switchMyActiveTo(moveName);
-            gameState.enemyMove(enemyMoveName);
+            gameState.enemyMove(enemyMoveName, this.deterministic);
             return gameState;
 
         } else if(enemyMove.includes('|/choose switch')) {
             gameState = initialGameState.clone();
             gameState.switchEnemyActiveTo(enemyMoveName);
-            gameState.myMove(moveName);
+            gameState.myMove(moveName, this.deterministic);
             return gameState;
                 
         } else {
@@ -375,17 +378,15 @@ class BattleManager {
             const currentEnemyMove = Dex.moves.get(enemyMoveName); 
 
             if(currentMove.priority > currentEnemyMove.priority) {
-                gameState.myMove(moveName);
-                gameState.enemyMove(enemyMoveName);
+                gameState.myMove(moveName, this.deterministic);
+                gameState.enemyMove(enemyMoveName, this.deterministic);
             } else {
-                gameState.enemyMove(enemyMoveName);
-                gameState.myMove(moveName);
+                gameState.enemyMove(enemyMoveName, this.deterministic);
+                gameState.myMove(moveName, this.deterministic);
             }
 
             return gameState;
         }
-
-        return gameState;
 
     }
 
@@ -411,7 +412,7 @@ class BattleManager {
         }
 
         gameState = initialGameState.clone();
-        gameState.myMove(moveName);
+        gameState.myMove(moveName, this.deterministic);
         return gameState;
     }
     

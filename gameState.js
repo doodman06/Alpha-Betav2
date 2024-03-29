@@ -229,7 +229,7 @@ class gameState {
      * Always uses the worst result for the AI.
      * @param {string} enemyMove the name of the move used by the enemy
      */
-    enemyMove(enemyMove) {
+    enemyMove(enemyMove, deterministic) {
         var myPokemon = this.getMyActive();
         var enemyPokemon = this.getActiveEnemy();
         const result = calculate(
@@ -244,7 +244,12 @@ class gameState {
         )
         var damage;
         if(Array.isArray(result.damage)) {
+            if(deterministic)
+            {
             damage = result.damage[result.damage.length - 1];
+            } else {
+                damage = result.damage[Math.floor(Math.random() * result.damage.length)];
+            }
         }  else {
             damage = result.damage;
         }
@@ -276,7 +281,7 @@ class gameState {
      * Always uses the worst result for the AI.
      * @param {string} myMove the name of the move used by the AI
      */
-    myMove(myMove) {
+    myMove(myMove, deterministic) {
         var enemyPokemon = this.getActiveEnemy();
         const result2 = calculate(  
             this.gen,
@@ -290,7 +295,11 @@ class gameState {
         )
         var damage2;
         if(Array.isArray(result2.damage)) {
-            damage2 = result2.damage[0];
+            if(deterministic) {
+                damage2 = result2.damage[0];
+            } else {
+                damage2 = result2.damage[Math.floor(Math.random() * result2.damage.length)];
+            }
         }  else {
             damage2 = result2.damage;
         }
