@@ -116,6 +116,7 @@ exports.parse = {
 
 			//reset everythin once the battle is over
 			if(spl[i] == "win"){
+				send(roomId + "|/savereplay");
 				battleManager = null;
 				battlestarted = false;
 				enemyName = [];
@@ -144,7 +145,7 @@ exports.parse = {
 				if(spl[2]){
 					console.log()
 					if(!battleManager){
-						battleManager = new BattleManager(JSON.parse(spl[2]), gen);
+						battleManager = new BattleManager(JSON.parse(spl[2]), gen, Config.transpositionTable, Config.moveOrdering, Config.depth, Config.deterministic);
 					}
 					else{
 						battleManager.updateData(JSON.parse(spl[2]));

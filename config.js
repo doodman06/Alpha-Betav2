@@ -1,8 +1,8 @@
 /**
  * Attribution:
- * The whole of this config.js file is from https://github.com/TalkTakesTime/Pokemon-Showdown-Bot/blob/master/config-example.js
+ * Part of this config.js file (Liness 8 - 49) is from https://github.com/TalkTakesTime/Pokemon-Showdown-Bot/blob/master/config-example.js
  * It was taken from this project to simplify the process of connecting to the server.
- * Is was edited to connect the bot to the local server.
+ * Is was edited to connect using the bot's credentials.
  */
 
 // The WEBSOCKET server and port the bot should connect to.
@@ -11,7 +11,10 @@
 // If you really don't know how to do this... Run `node getserver.js URL`.
 // Fill in the URL of the client where `URL` is.
 // For example: `node getserver.js http://example-server.psim.us/`
-exports.server = 'localhost';
+//Local Server:
+//exports.server = 'localhost';
+//exports.port = 8000;
+exports.server = 'sim.psim.us';
 exports.port = 8000;
 
 // This is the server id.
@@ -20,7 +23,9 @@ exports.port = 8000;
 // For example, on the Smogon server, it will say somewhere in the URL
 // ~~showdown, meaning that the server id is 'showdown'.
 // If you really don't know how to check this... run the said script above.
-exports.serverid = 'localhost:8000';
+//Local Server:
+//exports.serverid = 'localhost:8000';
+exports.serverid = 'showdown';
 
 // The nick and password to log in with
 // If no password is required, leave pass empty
@@ -42,4 +47,9 @@ exports.secprotocols = [];
 // 4 = error, ok
 // 5 = error
 exports.debuglevel = 3;
+
+exports.depth = 4;
+exports.transpositionTable = true;
+exports.moveOrdering = true;
+exports.deterministic = false;
 

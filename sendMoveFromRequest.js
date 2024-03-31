@@ -7,10 +7,10 @@ global.gameState = require('./gameState.js');
 global.myPokemon = require('./myPokemon.js');
 global.enemyPokemon = require('./enemyPokemon.js');
 global.TranspositionTable = require('./transpositionTable.js');
-global.generation = 6;
+global.generation = Generations.get(workerData.genNumber);
 
 console.log(workerData);
-var battleManager = new BattleManager(workerData.data, workerData.gen);
+var battleManager = new BattleManager(workerData.data, workerData.genNumber, workerData.useTranspositionTable, workerData.useMoveOrdering, workerData.maxDepth, workerData.deterministic);
 battleManager.gameState = new gameState();
 console.log(workerData.gameState);
 battleManager.gameState.setAll(workerData.gameState.forceSwitch, workerData.gameState.enemyForceSwitch,

@@ -1,6 +1,7 @@
 const {Dex} = require('pokemon-showdown');
 const {calculate, Pokemon, Move, Generations} = require('@smogon/calc');
 const pokemon = require('pokemon-showdown/dist/sim/pokemon');
+const gameState = require('./gameState');
 
 /**
  * Manages the state of the battle and the AI
@@ -11,8 +12,11 @@ class BattleManager {
      * Initializes the Pokemon Manager and game state
      * @param {JSON} jsonData  JSON data received from the server
      * @param {number} gen The Generation of Pokemon of the current battle
+     * @param {boolean} useTranspositionTable if the AI should use a transposition table
+     * @param {boolean} useMoveOrdering if the AI should use move ordering
+     * @param {number} maxDepth the maximum depth of the search tree
      */
-    constructor(jsonData, gen) {
+    constructor(jsonData, gen, useTranspositionTable, useMoveOrdering, maxDepth, deterministic) {
         /**
          * @type {JSON} JSON data received from the server
          */
@@ -22,11 +26,29 @@ class BattleManager {
          */
         this.gameState = new gameState();
         this.parseData(jsonData);
+
+        /**
+         * @type {number} the generation of Pokemon of the current battle stored as a number
+         */
+        this.genNumber = gen;
         generation = Generations.get(gen);
         /**
          * @type {Generations} the generation of Pokemon of the current battle
          */
         this.gen = generation;
+
+        /**
+         * @type {boolean} if the AI should use a transposition table
+         */
+        this.useTranspositionTable = useTranspositionTable;
+
+        /**
+         * @type {boolean} if the AI should use move ordering
+         */
+        this.useMoveOrdering = useMoveOrdering;
+        this.maxDepth = maxDepth;
+
+        this.deterministic = deterministic;
         
     }
     /**
@@ -128,11 +150,24 @@ class BattleManager {
         console.log(this.gameState.enemyPokemonList);
         var table = new TranspositionTable();
         var startTime = Date.now();
-        var bestMove = this.alphaBeta(this.gameState, 4, 4, -100000, 100000, table, true);
+        var depth = this.maxDepth;
+        var bestMove = this.alphaBeta(this.gameState, depth, depth, -100000, 100000, table, true);
         const fs = require('fs');
-        //change to timeWihoutTransposition.txt if using without transposition table
         //just to record the time taken
-        fs.appendFileSync('Logs/timeTransposition.txt',((Date.now() - startTime) / 1000) + ",");
+        var filetoWrite;
+        if(this.useTranspositionTable && this.useMoveOrdering) {
+            filetoWrite = 'Logs/timeTranspositionMoveOrdering';
+        } else if(this.useTranspositionTable) {
+            filetoWrite = 'Logs/timeTransposition';
+        } else if(this.useMoveOrdering) {
+            filetoWrite = 'Logs/timeMoveOrdering';
+        } else {
+            filetoWrite = 'Logs/timeWithoutTransposition';
+        }
+        filetoWrite += 'Depth' + this.maxDepth;
+        filetoWrite += 'Deterministic' + this.deterministic;
+        filetoWrite += '.txt';
+        fs.appendFileSync(filetoWrite ,((Date.now() - startTime) / 1000) + ",");
         console.log("Time: " + ((Date.now() - startTime)  / 1000));
         console.log(bestMove);
 
@@ -148,7 +183,8 @@ class BattleManager {
         this.gameState.setForceSwitch(true);
 
         var table = new TranspositionTable();
-        var bestMove = this.alphaBeta(this.gameState, 4, 4, -100000, 100000, table, true);
+        var depth = this.maxDepth;
+        var bestMove = this.alphaBeta(this.gameState, depth, depth, -100000, 100000, table, true);
         console.log(bestMove);
         
         return bestMove;
@@ -178,21 +214,23 @@ class BattleManager {
             return gameState.evaluateState();
         } 
 
-        if(table.get(gameState, depth) != null) {
-            var ttEntry = table.get(gameState, depth);
-            if(ttEntry.flag == "VALID") {
-                return ttEntry.evaluationValue;
+        if(this.useTranspositionTable) {
+            if(table.get(gameState, depth) != null) {
+                var ttEntry = table.get(gameState, depth);
+                if(ttEntry.flag == "VALID") {
+                    return ttEntry.evaluationValue;
+                }
+                if(ttEntry.flag == "LOWERBOUND") {
+                    alpha = Math.max(alpha, ttEntry.evaluationValue);
+                }
+                if(ttEntry.flag == "UPPERBOUND") {
+                    beta = Math.min(beta, ttEntry.evaluationValue);
+                }
+                if(alpha >= beta) {
+                    return ttEntry.evaluationValue;
+                }
             }
-            if(ttEntry.flag == "LOWERBOUND") {
-                alpha = Math.max(alpha, ttEntry.evaluationValue);
-            }
-            if(ttEntry.flag == "UPPERBOUND") {
-                beta = Math.min(beta, ttEntry.evaluationValue);
-            }
-            if(alpha >= beta) {
-                return ttEntry.evaluationValue;
-            }
-        }
+        }   
         
         var v;
         var moves = [];
@@ -214,6 +252,17 @@ class BattleManager {
                     moves.push('|/choose switch ' + gameState.myPokemonList[i].name);
                 }
             }
+            if(this.useMoveOrdering) {
+                //start move ordering
+                var moveOrderScores = [];
+                for(let i = 0; i < moves.length; i++) {
+                    var newGameState = gameState.clone();
+                    var simGameState = this.simulatemyMove(newGameState, moves[i]);
+                    moveOrderScores.push(simGameState.evaluateState());
+                }
+                moves.sort((a, b) => moveOrderScores[moves.indexOf(b)] - moveOrderScores[moves.indexOf(a)]);
+                //end move ordering
+            }
             for(let i = 0; i < moves.length; i++) {
             
                 var newGameState = gameState.clone();
@@ -228,6 +277,17 @@ class BattleManager {
         } else {
             v = 100000;
             moves = this.gameState.getPossibleEnemyMoves();
+            if(this.useMoveOrdering) {
+                //start move ordering
+                var moveOrderScores = [];
+                for(let i = 0; i < moves.length; i++) {
+                    var newGameState = gameState.clone();
+                    var simGameState = this.simulate(newGameState, maximizingMove, moves[i]);
+                    moveOrderScores.push(simGameState.evaluateState());
+                }
+                moves.sort((a, b) => moveOrderScores[moves.indexOf(a)] - moveOrderScores[moves.indexOf(b)]);
+                //end move ordering
+            }
             for(let i = 0; i < moves.length; i++) {
                 var newGameState = gameState.clone();
                 var simGameState = this.simulate(newGameState, maximizingMove, moves[i]);
@@ -256,14 +316,16 @@ class BattleManager {
             return bestMove;
         }
 
-        var flag = "VALID"
-        if(v <= alpha) {
-            flag = "UPPERBOUND";
+        if(this.useTranspositionTable) {
+            var flag = "VALID"
+            if(v <= alpha) {
+                flag = "UPPERBOUND";
+            }
+            if(v >= beta) {
+                flag = "LOWERBOUND";
+            }
+            table.add(gameState, v, depth, flag);
         }
-        if(v >= beta) {
-            flag = "LOWERBOUND";
-        }
-        table.add(gameState, v, depth, flag);
 
 
         return v;
@@ -301,13 +363,13 @@ class BattleManager {
         if(myMove.includes('|/choose switch')) { 
             gameState = initialGameState.clone();
             gameState.switchMyActiveTo(moveName);
-            gameState.enemyMove(enemyMoveName);
+            gameState.enemyMove(enemyMoveName, this.deterministic);
             return gameState;
 
         } else if(enemyMove.includes('|/choose switch')) {
             gameState = initialGameState.clone();
             gameState.switchEnemyActiveTo(enemyMoveName);
-            gameState.myMove(moveName);
+            gameState.myMove(moveName, this.deterministic);
             return gameState;
                 
         } else {
@@ -317,18 +379,42 @@ class BattleManager {
             const currentEnemyMove = Dex.moves.get(enemyMoveName); 
 
             if(currentMove.priority > currentEnemyMove.priority) {
-                gameState.myMove(moveName);
-                gameState.enemyMove(enemyMoveName);
+                gameState.myMove(moveName, this.deterministic);
+                gameState.enemyMove(enemyMoveName, this.deterministic);
             } else {
-                gameState.enemyMove(enemyMoveName);
-                gameState.myMove(moveName);
+                gameState.enemyMove(enemyMoveName, this.deterministic);
+                gameState.myMove(moveName, this.deterministic);
             }
 
             return gameState;
         }
 
-        return gameState;
+    }
 
+    /**
+     * Simulate the game state after the AI uses a move
+     * @param {gameState} initialGameState the current game state to be simulated
+     * @param {string} myMove the move to be simulated
+     * @returns {gamestate} the game state after the move is used
+     */
+    simulatemyMove(initialGameState, myMove) {
+        var moveName = myMove.split(' ')[2];
+        var gameState;
+        //if force switching like is a Pokemon died the other does not take a turn
+        if(myMove.includes('|/choose switch')) { 
+            gameState = initialGameState.clone();
+            gameState.switchMyActiveTo(moveName);
+            return gameState;
+        }
+        if(initialGameState.isForceSwitch()) {
+            gameState = initialGameState.clone();
+            gameState.switchMyActiveTo(moveName);
+            return gameState;
+        }
+
+        gameState = initialGameState.clone();
+        gameState.myMove(moveName, this.deterministic);
+        return gameState;
     }
     
 }
