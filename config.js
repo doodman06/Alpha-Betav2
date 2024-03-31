@@ -50,6 +50,6 @@ exports.debuglevel = 3;
 
 exports.depth = 4;
 exports.transpositionTable = true;
-exports.moveOrdering = true;
+exports.moveOrdering = false;
 exports.deterministic = false;
 

@@ -162,7 +162,7 @@ class BattleManager {
         } else if(this.useMoveOrdering) {
             filetoWrite = 'Logs/timeMoveOrdering';
         } else {
-            filetoWrite = 'Logs/timeWithoutTransposition';
+            filetoWrite = 'Logs/timeBasic';
         }
         filetoWrite += 'Depth' + this.maxDepth;
         filetoWrite += 'Deterministic' + this.deterministic;
