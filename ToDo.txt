@@ -120,3 +120,7 @@ Still need to change file name based on depth.
 3/29/2024
 Updated to use deterministic simulation or not in config.
 Added changes to file name based on settings.
+
+3/31/2024
+Updated previous log file to use current naming convention and added python file used for visualizing and comparing the data.
+Also made sure new files are txt.

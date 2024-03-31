@@ -166,6 +166,7 @@ class BattleManager {
         }
         filetoWrite += 'Depth' + this.maxDepth;
         filetoWrite += 'Deterministic' + this.deterministic;
+        filetoWrite += '.txt';
         fs.appendFileSync(filetoWrite ,((Date.now() - startTime) / 1000) + ",");
         console.log("Time: " + ((Date.now() - startTime)  / 1000));
         console.log(bestMove);
