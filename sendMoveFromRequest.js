@@ -9,10 +9,8 @@ global.enemyPokemon = require('./enemyPokemon.js');
 global.TranspositionTable = require('./transpositionTable.js');
 global.generation = Generations.get(workerData.genNumber);
 
-console.log(workerData);
 var battleManager = new BattleManager(workerData.data, workerData.genNumber, workerData.useTranspositionTable, workerData.useMoveOrdering, workerData.maxDepth, workerData.deterministic);
 battleManager.gameState = new gameState();
-console.log(workerData.gameState);
 battleManager.gameState.setAll(workerData.gameState.forceSwitch, workerData.gameState.enemyForceSwitch,
    workerData.gameState.myPokemonList, workerData.gameState.enemyPokemonList, workerData.gameState.activeEnemy, workerData.gameState.gen);
 var tempList = battleManager.gameState.myPokemonList;

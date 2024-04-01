@@ -32,20 +32,16 @@ var battleManager = null;
 
 
 async function sendMove() {
-	console.log("sendMove");
 	var worker = new Worker('./sendMove.js', {workerData: battleManager});
 	worker.on('message', (move) => {
-		console.log(roomId  + move);
 		send(roomId  + move);
 	});
 }
 
 async function sendMoveFromRequest() {
-	console.log("sendMove");
 	var worker = new Worker('./sendMoveFromRequest.js', {workerData: battleManager});
 	worker.on('message', (move) => {
 		if(move == null) return;
-		console.log(roomId  + move);
 		send(roomId  + move);
 	});
 }
@@ -85,7 +81,6 @@ exports.parse = {
 		if(!battlestarted){
 			for (let i = 0; i < spl.length; i++) {
 				if(spl[i] == 'poke' && spl[i + 1] == 'p1' ){
-					console.log(spl[i + 2]);
 					enemyName.push(spl[i + 2]);
 				}
 			}
@@ -135,7 +130,7 @@ exports.parse = {
 			case 'pm':
 				if(spl[4].includes("challenge") && spl[4].includes("gen")){
 					gen = parseInt(spl[4].split('gen')[1].slice(0, 1));
-					console.log(gen);
+					console.log("Generation is:" + gen);
 					console.log("Start Battle");
 					send('|/utm ' + Teams.pack(team));
 					send('|/accept ' + spl[2]);
@@ -143,7 +138,6 @@ exports.parse = {
 				break;
 			case 'request':
 				if(spl[2]){
-					console.log()
 					if(!battleManager){
 						battleManager = new BattleManager(JSON.parse(spl[2]), gen, Config.transpositionTable, Config.moveOrdering, Config.depth, Config.deterministic);
 					}

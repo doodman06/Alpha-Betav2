@@ -75,7 +75,6 @@ class BattleManager {
     updateData(jsonData) {
         this.data = jsonData;
         this.parseData(jsonData);
-        console.log(this.gameState.myPokemonList);
     }
 
     /**
@@ -121,15 +120,11 @@ class BattleManager {
             return '|/choose team 123456';
         }
 
-
-        //console.log(this.data);
         //if no active pokemon, switch
         if(!this.data.active) {
-            console.log("no active pokemon");
             return this.forceSwitch();
         }
 
-    
     }
     /**
      * Selects the move to be used
@@ -139,15 +134,11 @@ class BattleManager {
         
         //if no active pokemon, switch
         if(!this.data.active) {
-            console.log("no active pokemon");
             this.gameState.setForceSwitch(true);
         } else {
             this.gameState.setForceSwitch(false);
         }
 
-        //console.log("Active Enemy");
-        //console.log(this.gameState.activeEnemy);
-        console.log(this.gameState.enemyPokemonList);
         var table = new TranspositionTable();
         var startTime = Date.now();
         var depth = this.maxDepth;
@@ -168,8 +159,6 @@ class BattleManager {
         filetoWrite += 'Deterministic' + this.deterministic;
         filetoWrite += '.txt';
         fs.appendFileSync(filetoWrite ,((Date.now() - startTime) / 1000) + ",");
-        console.log("Time: " + ((Date.now() - startTime)  / 1000));
-        console.log(bestMove);
 
         return bestMove;
 
@@ -185,7 +174,6 @@ class BattleManager {
         var table = new TranspositionTable();
         var depth = this.maxDepth;
         var bestMove = this.alphaBeta(this.gameState, depth, depth, -100000, 100000, table, true);
-        console.log(bestMove);
         
         return bestMove;
     }
@@ -207,10 +195,6 @@ class BattleManager {
 
 
         if(depth == 0 || gameState.myPokemonList.length == 0 || gameState.enemyPokemonList.length == 0) {
-           // console.log("evaluate state");
-            //console.log(gameState.evaluateState());
-            //console.log(gameState);
-           
             return gameState.evaluateState();
         } 
 
@@ -242,7 +226,6 @@ class BattleManager {
             gameState.myPokemonList[0].moves.forEach(move => {
                 //add the move as an option if there is enough pp
                 if(gameState.isMoveUsable(move)) {
-                    //console.log(move + " is added ")
                     moves.push('|/choose move ' + move);
                 }
             });
@@ -303,10 +286,8 @@ class BattleManager {
     
 
         if(depth == initialDepth) {
-            console.log(moveScores);
             var max = moveScores[0];
             var bestMove = moves[0];
-            console.log(moves);
             for(let i = 0; i < moveScores.length; i++) {
                 if(moveScores[i] > max) {
                     max = moveScores[i];

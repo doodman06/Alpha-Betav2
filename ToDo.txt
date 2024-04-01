@@ -128,3 +128,6 @@ Also made sure new files are txt.
 3/31/2024
 Did more tests with stochastic simulation.
 Changed name of basic version to more appropriate name in log files.
+
+4/1/2024
+Removed unnecesary console log statments.

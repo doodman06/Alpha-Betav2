@@ -167,7 +167,6 @@ class gameState {
      */
     updateMyPP(jsonData) {
         if('active' in jsonData) {
-            console.log(jsonData.active[0])
             jsonData.active[0].moves.forEach( moves => {
                 this.myPokemonList[0].setPP(moves.pp, moves.id);
                 
@@ -393,10 +392,8 @@ class gameState {
      */
     isMoveUsable(move) {
         if(this.myPokemonList[0].getPP(move) > 0){
-            //console.log("move usable");
             return true;
         } else {
-            //console.log("move not usable");
             return false;
         }
     }
