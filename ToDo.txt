@@ -135,3 +135,6 @@ Removed unnecesary console log statments.
 4/2/2024
 Tidied up package.json
 Did more testing
+
+4/2/2024
+Added JSDoc comments.

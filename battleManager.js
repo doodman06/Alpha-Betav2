@@ -15,6 +15,7 @@ class BattleManager {
      * @param {boolean} useTranspositionTable if the AI should use a transposition table
      * @param {boolean} useMoveOrdering if the AI should use move ordering
      * @param {number} maxDepth the maximum depth of the search tree
+     * @param {boolean} deterministic if the AI should use deterministic simulation of moves
      */
     constructor(jsonData, gen, useTranspositionTable, useMoveOrdering, maxDepth, deterministic) {
         /**
@@ -46,8 +47,15 @@ class BattleManager {
          * @type {boolean} if the AI should use move ordering
          */
         this.useMoveOrdering = useMoveOrdering;
+
+        /**
+         * @type {number} the maximum depth of the search tree
+         */
         this.maxDepth = maxDepth;
 
+        /**
+         * @type {boolean} if the AI should use determinsitic simulation of moves
+         */
         this.deterministic = deterministic;
         
     }

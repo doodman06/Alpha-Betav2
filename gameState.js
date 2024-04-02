@@ -227,6 +227,7 @@ class gameState {
      * simulates the enemy's move.
      * Always uses the worst result for the AI.
      * @param {string} enemyMove the name of the move used by the enemy
+     * @param {boolean} deterministic whether the move damage calculation should be deterministic
      */
     enemyMove(enemyMove, deterministic) {
         var myPokemon = this.getMyActive();
@@ -279,6 +280,7 @@ class gameState {
      * simulates the AI's move.
      * Always uses the worst result for the AI.
      * @param {string} myMove the name of the move used by the AI
+     * @param {boolean} deterministic whether the move damage calculation should be deterministic
      */
     myMove(myMove, deterministic) {
         var enemyPokemon = this.getActiveEnemy();
