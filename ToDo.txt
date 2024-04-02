@@ -138,3 +138,6 @@ Did more testing
 
 4/2/2024
 Added JSDoc comments.
+
+4/2/2024
+Made boxplot look good.
