@@ -1,5 +1,5 @@
 {
-	"name": "Pokemon-Alpha=Beta-Bot",
+	"name": "pokemon-alpha-beta-bot",
 	"version": "0.0.1",
 	"dependencies": {
 		"@smogon/calc": "^0.8.1",
@@ -12,14 +12,6 @@
 	},
 	"scripts": {
 		"start": "node main.js"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Quinella/Pokemon-Showdown-Bot.git"
-	},
-	"author": {
-		"name": "Robin Vandenbrande",
-		"email": "vandenbrande.robin@gmail.com"
 	},
 	"private": true
 }

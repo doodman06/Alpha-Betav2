@@ -131,3 +131,7 @@ Changed name of basic version to more appropriate name in log files.
 
 4/1/2024
 Removed unnecesary console log statments.
+
+4/2/2024
+Tidied up package.json
+Did more testing

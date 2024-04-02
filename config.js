@@ -49,7 +49,7 @@ exports.secprotocols = [];
 exports.debuglevel = 3;
 
 exports.depth = 4;
-exports.transpositionTable = true;
+exports.transpositionTable = false;
 exports.moveOrdering = false;
 exports.deterministic = false;
 
