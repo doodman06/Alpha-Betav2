@@ -109,9 +109,9 @@ exports.parse = {
 				battleManager.updateMyPokemonFromTurn("-boost", spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
 			}
 
-			//reset everythin once the battle is over
+			//reset everything once the battle is over
 			if(spl[i] == "win"){
-				send(roomId + "|/savereplay");
+				//send(roomId + "|/savereplay");
 				battleManager = null;
 				battlestarted = false;
 				enemyName = [];

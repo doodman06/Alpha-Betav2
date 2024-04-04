@@ -141,3 +141,7 @@ Added JSDoc comments.
 
 4/2/2024
 Made boxplot look good.
+
+4/4/2024
+Added poke-env python notebook to play against the bot.
+Now connecting to local server for playing against bots, so disabled saving replays.
