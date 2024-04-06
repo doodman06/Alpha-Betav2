@@ -153,3 +153,6 @@ Still need to do depth 6.
 
 4/6/2024
 Added to option to choose evaluation heuristic in config.
+
+4/6/2024
+Added to option to enable or disable time logging in config.

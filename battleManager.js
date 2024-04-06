@@ -17,8 +17,9 @@ class BattleManager {
      * @param {number} maxDepth the maximum depth of the search tree
      * @param {boolean} deterministic if the AI should use deterministic simulation of moves
      * @param {number} heuristic the id of the heuristic to be used for evaluation
+     * @param {boolean} logging if the AI should log the time taken to make a move
      */
-    constructor(jsonData, gen, useTranspositionTable, useMoveOrdering, maxDepth, deterministic, heuristic) {
+    constructor(jsonData, gen, useTranspositionTable, useMoveOrdering, maxDepth, deterministic, heuristic, logging) {
         /**
          * @type {JSON} JSON data received from the server
          */
@@ -63,6 +64,11 @@ class BattleManager {
          * @type {number} the id of the heuristic to be used for evaluation
          */
         this.heuristic = heuristic;
+
+        /**
+         * @type {boolean} if the AI should log the time taken to make a move
+         */
+        this.logging = logging;
         
     }
     /**
@@ -154,25 +160,30 @@ class BattleManager {
         }
 
         var table = new TranspositionTable();
-        var startTime = Date.now();
+        if(this.logging) {
+            var startTime = Date.now();
+        }
         var depth = this.maxDepth;
         var bestMove = this.alphaBeta(this.gameState, depth, depth, -100000, 100000, table, true);
         const fs = require('fs');
         //just to record the time taken
-        var filetoWrite;
-        if(this.useTranspositionTable && this.useMoveOrdering) {
-            filetoWrite = 'Logs/timeTranspositionMoveOrdering';
-        } else if(this.useTranspositionTable) {
-            filetoWrite = 'Logs/timeTransposition';
-        } else if(this.useMoveOrdering) {
-            filetoWrite = 'Logs/timeMoveOrdering';
-        } else {
-            filetoWrite = 'Logs/timeBasic';
+        console.log(this.logging)
+        if(this.logging) {
+            var filetoWrite;
+            if(this.useTranspositionTable && this.useMoveOrdering) {
+                filetoWrite = 'Logs/timeTranspositionMoveOrdering';
+            } else if(this.useTranspositionTable) {
+                filetoWrite = 'Logs/timeTransposition';
+            } else if(this.useMoveOrdering) {
+                filetoWrite = 'Logs/timeMoveOrdering';
+            } else {
+                filetoWrite = 'Logs/timeBasic';
+            }
+            filetoWrite += 'Depth' + this.maxDepth;
+            filetoWrite += 'Deterministic' + this.deterministic;
+            filetoWrite += '.txt';
+            fs.appendFileSync(filetoWrite ,((Date.now() - startTime) / 1000) + ",");
         }
-        filetoWrite += 'Depth' + this.maxDepth;
-        filetoWrite += 'Deterministic' + this.deterministic;
-        filetoWrite += '.txt';
-        fs.appendFileSync(filetoWrite ,((Date.now() - startTime) / 1000) + ",");
 
         return bestMove;
 

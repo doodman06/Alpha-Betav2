@@ -59,3 +59,5 @@ exports.deterministic = true;
 
 exports.heuristic = 1;
 
+exports.logging = false;
+
