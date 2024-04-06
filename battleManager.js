@@ -16,8 +16,9 @@ class BattleManager {
      * @param {boolean} useMoveOrdering if the AI should use move ordering
      * @param {number} maxDepth the maximum depth of the search tree
      * @param {boolean} deterministic if the AI should use deterministic simulation of moves
+     * @param {number} heuristic the id of the heuristic to be used for evaluation
      */
-    constructor(jsonData, gen, useTranspositionTable, useMoveOrdering, maxDepth, deterministic) {
+    constructor(jsonData, gen, useTranspositionTable, useMoveOrdering, maxDepth, deterministic, heuristic) {
         /**
          * @type {JSON} JSON data received from the server
          */
@@ -57,6 +58,11 @@ class BattleManager {
          * @type {boolean} if the AI should use determinsitic simulation of moves
          */
         this.deterministic = deterministic;
+
+        /**
+         * @type {number} the id of the heuristic to be used for evaluation
+         */
+        this.heuristic = heuristic;
         
     }
     /**
@@ -203,7 +209,7 @@ class BattleManager {
 
 
         if(depth == 0 || gameState.myPokemonList.length == 0 || gameState.enemyPokemonList.length == 0) {
-            return gameState.evaluateState();
+            return gameState.evaluateState(this.heuristic);
         } 
 
         if(this.useTranspositionTable) {
@@ -249,7 +255,7 @@ class BattleManager {
                 for(let i = 0; i < moves.length; i++) {
                     var newGameState = gameState.clone();
                     var simGameState = this.simulatemyMove(newGameState, moves[i]);
-                    moveOrderScores.push(simGameState.evaluateState());
+                    moveOrderScores.push(simGameState.evaluateState(this.heuristic));
                 }
                 moves.sort((a, b) => moveOrderScores[moves.indexOf(b)] - moveOrderScores[moves.indexOf(a)]);
                 //end move ordering
@@ -274,7 +280,7 @@ class BattleManager {
                 for(let i = 0; i < moves.length; i++) {
                     var newGameState = gameState.clone();
                     var simGameState = this.simulate(newGameState, maximizingMove, moves[i]);
-                    moveOrderScores.push(simGameState.evaluateState());
+                    moveOrderScores.push(simGameState.evaluateState(this.heuristic));
                 }
                 moves.sort((a, b) => moveOrderScores[moves.indexOf(a)] - moveOrderScores[moves.indexOf(b)]);
                 //end move ordering

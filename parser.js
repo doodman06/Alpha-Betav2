@@ -139,7 +139,7 @@ exports.parse = {
 			case 'request':
 				if(spl[2]){
 					if(!battleManager){
-						battleManager = new BattleManager(JSON.parse(spl[2]), gen, Config.transpositionTable, Config.moveOrdering, Config.depth, Config.deterministic);
+						battleManager = new BattleManager(JSON.parse(spl[2]), gen, Config.transpositionTable, Config.moveOrdering, Config.depth, Config.deterministic, Config.heuristic);
 					}
 					else{
 						battleManager.updateData(JSON.parse(spl[2]));

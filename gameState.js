@@ -418,9 +418,22 @@ class gameState {
 
     /**
      * Evaluates the current game state for Alpha Beta Pruning
+     * @param {number} heuristic the the id of the heuristic to be used
      * @returns {number} the score of the current game state
      */
-    evaluateState() {
+    evaluateState(heuristic) {
+        if(heuristic == 0) {
+            return this.evaluateState0();
+        } else if(heuristic == 1) {
+            return this.evaluateState1();
+        }
+    }
+
+    /**
+     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 0
+     * @returns {number} the score of the current game state
+     */
+    evaluateState0() {  
         var myScore = 0;
         var enemyScore = 0;
         this.myPokemonList.forEach(pokemon => {
@@ -433,9 +446,34 @@ class gameState {
         this.enemyPokemonList.forEach(pokemon => {
             if(pokemon.hp <= 0) {
                 enemyScore += 0;
-
             } else {
                 enemyScore += pokemon.hp ;
+            }
+        });
+        return myScore - enemyScore;
+    }
+
+    /**
+     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 1
+     * @returns {number} the score of the current game state
+     */
+    evaluateState1() {
+        var myScore = 0;
+        var enemyScore = 0;
+        this.myPokemonList.forEach(pokemon => {
+            if(pokemon.hp <= 0) {
+                myScore += 0;
+            } else {
+                myScore += (pokemon.hp / pokemon.maxHP) * 100
+                myScore += 1000
+            }
+        });
+        this.enemyPokemonList.forEach(pokemon => {
+            if(pokemon.hp <= 0) {
+                enemyScore += 0;
+            } else {
+                enemyScore += pokemon.hp ;
+                enemyScore += 1000;
             }
         });
         return myScore - enemyScore;

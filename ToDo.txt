@@ -150,3 +150,6 @@ Now connecting to local server for playing against bots, so disabled saving repl
 Did testing at depth 2.
 Also did the visualization.
 Still need to do depth 6.
+
+4/6/2024
+Added to option to choose evaluation heuristic in config.
