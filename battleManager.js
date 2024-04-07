@@ -167,7 +167,6 @@ class BattleManager {
         var bestMove = this.alphaBeta(this.gameState, depth, depth, -100000, 100000, table, true);
         const fs = require('fs');
         //just to record the time taken
-        console.log(this.logging)
         if(this.logging) {
             var filetoWrite;
             if(this.useTranspositionTable && this.useMoveOrdering) {
@@ -251,7 +250,21 @@ class BattleManager {
             gameState.myPokemonList[0].moves.forEach(move => {
                 //add the move as an option if there is enough pp
                 if(gameState.isMoveUsable(move)) {
-                    moves.push('|/choose move ' + move);
+                    //check if the json data has a disabled field
+                    var moveToCheck = this.data.active[0].moves.find(m => m.id == move);
+                    if(moveToCheck == undefined) {
+                        moves.push('|/choose move ' + move);
+                    }
+                    else {
+                        var moveCondition = false;
+                        if('disabled' in moveToCheck) {
+                            moveCondition = moveToCheck.disabled;
+                        }
+                        if(!moveCondition || !this.gameState.getMyActive().name == this.data.side.pokemon[0].ident.split(':')[1] ){
+                            moves.push('|/choose move ' + move);
+                        } 
+                    }
+                   
                 }
             });
             }

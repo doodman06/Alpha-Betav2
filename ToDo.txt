@@ -159,3 +159,6 @@ Added to option to enable or disable time logging in config.
 
 4/7/2024
 Added tracking change of enemy hp based on healing.
+
+4/7/2024
+Added checking if move is disabled.
