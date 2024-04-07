@@ -21,7 +21,7 @@ var http = require('http');
 var https = require('https');
 var url = require('url');
 const {Teams} = require('pokemon-showdown');
-const team = require('./Team1.json');
+const team = require('./Team2.json');
 const {Worker, isMainThread, parentPort, workerData} = require('worker_threads');
 var battlestarted = false;
 var enemysaved = false;
@@ -90,7 +90,8 @@ exports.parse = {
 			}
 		}
 		for(let i = 0; i < spl.length; i++){
-			if(spl[i] == '-damage' && spl[i + 1].includes('p1')){
+			//both damaage and heal messages from the server contain the enemies new hp so we can use the same function to update the enemy
+			if((spl[i] == '-damage' || spl[i] == '-heal') && spl[i + 1].includes('p1')){
 				//battleManager.updateEnemy(spl[i + 1].split(' ')[1], spl[i + 2].split('/')[0]);
 				battleManager.updateFromTurn('-damage', spl[i + 1].split(' ')[1], spl[i + 2].split('/')[0]);
 				

@@ -156,3 +156,6 @@ Added to option to choose evaluation heuristic in config.
 
 4/6/2024
 Added to option to enable or disable time logging in config.
+
+4/7/2024
+Added tracking change of enemy hp based on healing.
