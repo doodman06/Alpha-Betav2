@@ -87,6 +87,7 @@ class BattleManager {
     parseData(jsonData) {
         this.gameState.updateFromJSON(jsonData);
         this.gameState.updateMyPP(jsonData);
+        this.gameState.checkStruggleFromJSON(jsonData);
     }
     /**
      * Updates the game state with new data

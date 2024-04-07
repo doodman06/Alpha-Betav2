@@ -135,6 +135,27 @@ class gameState {
     }
 
     /**
+     * check if the move stuggle is in the AI's pokemon's move list and set its PP to 100000 (never runs out)
+     * @param {JSON} Json the JSON data received from the server
+     */
+    checkStruggleFromJSON(Json) {
+        var moves = [];
+        if(!('active' in Json)) return;
+        Json.active[0].moves.forEach( move => {
+            moves.push(move.id);
+        });
+        if(moves.length > 0) {
+            for(let i = 0; i < this.myPokemonList.length; i++){
+                if(moves[i] == 'struggle') {
+                    this.myPokemonList[0].moves = moves;
+                    this.myPokemonList[0].setPP(100000, 'struggle');
+                }
+            }
+        }
+        
+    }
+
+    /**
      * used for sorting the pokemon list
      * @param {number} a the position of the first pokemon
      * @param {number} b the position of the second pokemon

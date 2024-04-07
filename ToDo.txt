@@ -162,3 +162,6 @@ Added tracking change of enemy hp based on healing.
 
 4/7/2024
 Added checking if move is disabled.
+
+4/8/2024
+Added checking if the only move left is struggle.
