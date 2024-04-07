@@ -165,3 +165,7 @@ Added checking if move is disabled.
 
 4/8/2024
 Added checking if the only move left is struggle.
+
+4/8/2024
+Moved all teams to the Teams folder.
+Added a few more teams for Gen5 OU from https://www.smogon.com/forums/threads/bw-ou-samples-thread.3686880/.

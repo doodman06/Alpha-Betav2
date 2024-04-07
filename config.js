@@ -52,12 +52,12 @@ exports.secprotocols = [];
 // 5 = error
 exports.debuglevel = 3;
 
-exports.depth = 4;
+exports.depth = 2;
 exports.transpositionTable = true;
 exports.moveOrdering = true;
 exports.deterministic = true;
 
-exports.heuristic = 1;
+exports.heuristic = 0;
 
 exports.logging = false;
 
