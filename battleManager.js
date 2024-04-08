@@ -252,7 +252,10 @@ class BattleManager {
                 //add the move as an option if there is enough pp
                 if(gameState.isMoveUsable(move)) {
                     //check if the json data has a disabled field
-                    var moveToCheck = this.data.active[0].moves.find(m => m.id == move);
+                    var moveToCheck = undefined;
+                    if(Array.isArray(this.data.active)) {
+                        moveToCheck = this.data.active[0].moves.find(m => m.id == move);
+                    }
                     if(moveToCheck == undefined) {
                         moves.push('|/choose move ' + move);
                     }
@@ -261,7 +264,7 @@ class BattleManager {
                         if('disabled' in moveToCheck) {
                             moveCondition = moveToCheck.disabled;
                         }
-                        if(!moveCondition || !this.gameState.getMyActive().name == this.data.side.pokemon[0].ident.split(':')[1] ){
+                        if(!moveCondition || !this.gameState.getMyActive().name == this.data.side.pokemon[0].details.split(',')[0]) {
                             moves.push('|/choose move ' + move);
                         } 
                     }
@@ -269,9 +272,30 @@ class BattleManager {
                 }
             });
             }
-            for(let i = 1; i < gameState.myPokemonList.length; i++) {
-                if(gameState.myPokemonList[i].alive && gameState.myPokemonList[i].name != gameState.getMyActive().name && gameState.myPokemonList[i].hp > 0 ) {
-                    moves.push('|/choose switch ' + gameState.myPokemonList[i].name);
+            //cant switch if trapped
+
+            var activeData =  null;
+            if(Array.isArray(this.data.active)) {
+                activeData = this.data.active[0];
+            }
+            var trapped = false;
+            if(activeData != null) {
+                if( 'trapped' in activeData) {
+                    if(activeData.trapped) {
+                        trapped = true;
+                    }
+                }
+                if('maybeTrapped' in activeData) {
+                    if(activeData.maybeTrapped) {
+                        trapped = true;
+                    }
+                }
+            } 
+            if(!trapped) {
+                for(let i = 1; i < gameState.myPokemonList.length; i++) {
+                    if(gameState.myPokemonList[i].alive && gameState.myPokemonList[i].name != gameState.getMyActive().name && gameState.myPokemonList[i].hp > 0 ) {
+                        moves.push('|/choose switch ' + gameState.myPokemonList[i].name);
+                    }
                 }
             }
             if(this.useMoveOrdering) {
