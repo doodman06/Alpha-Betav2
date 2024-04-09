@@ -173,3 +173,6 @@ Added a few more teams for Gen5 OU from https://www.smogon.com/forums/threads/bw
 4/8/2024
 Added checking if the move is disabled for hidden power.
 Added checking if the pokemon is trapped and cannot switch out.
+
+4/9/2024
+Did tests against random player.

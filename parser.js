@@ -21,7 +21,7 @@ var http = require('http');
 var https = require('https');
 var url = require('url');
 const {Teams} = require('pokemon-showdown');
-const team = require('./Teams/Team2.json');
+var team = require('./Teams/Team2.json');
 const {Worker, isMainThread, parentPort, workerData} = require('worker_threads');
 var battlestarted = false;
 var enemysaved = false;
@@ -29,6 +29,7 @@ var enemyName = [];
 var roomId;
 var gen;
 var battleManager = null;
+var numBattles = 0;
 
 
 async function sendMove() {
@@ -112,12 +113,23 @@ exports.parse = {
 
 			//reset everything once the battle is over
 			if(spl[i] == "win"){
+				//save replay (only works on main server not local server)
 				//send(roomId + "|/savereplay");
 				battleManager = null;
 				battlestarted = false;
 				enemyName = [];
 				roomId = null;
 				gen = null;
+				//code to switch teams each battle
+				numBattles++;
+				if(numBattles == 1){
+					team = require('./Teams/Team3.json');
+				} else if(numBattles == 2){
+					team = require('./Teams/Team4.json');
+				} else {
+					team = require('./Teams/Team2.json');
+					numBattles = 0;
+				}
 
 			}
 

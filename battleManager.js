@@ -254,7 +254,18 @@ class BattleManager {
                     //check if the json data has a disabled field
                     var moveToCheck = undefined;
                     if(Array.isArray(this.data.active)) {
-                        moveToCheck = this.data.active[0].moves.find(m => m.id == move);
+                        if(move.includes('hiddenpower')) {
+                            moveToCheck = this.data.active[0].moves.find(m => m.id == 'hiddenpower');
+                            if(moveToCheck != undefined){ 
+                                if('disabled' in moveToCheck) {
+                                    if(moveToCheck.disabled) {
+                                        console.log(moveToCheck);
+                                    }
+                                }
+                            }
+                        } else {
+                            moveToCheck = this.data.active[0].moves.find(m => m.id == move);
+                        }
                     }
                     if(moveToCheck == undefined) {
                         moves.push('|/choose move ' + move);
