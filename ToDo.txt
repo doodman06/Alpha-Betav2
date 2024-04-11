@@ -176,3 +176,6 @@ Added checking if the pokemon is trapped and cannot switch out.
 
 4/9/2024
 Did tests against random player.
+
+4/11/2024
+Did more testing. Changed Heuristic 1 to add 10 for every living pokemon instead of 1000, much more reasonable.

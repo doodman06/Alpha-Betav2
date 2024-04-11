@@ -461,14 +461,14 @@ class gameState {
             if(pokemon.hp <= 0) {
                 myScore += 0;
             } else {
-                myScore += (pokemon.hp / pokemon.maxHP) * 100
+                myScore += (pokemon.hp / pokemon.maxHP) * 100;
             }
         });
         this.enemyPokemonList.forEach(pokemon => {
             if(pokemon.hp <= 0) {
                 enemyScore += 0;
             } else {
-                enemyScore += pokemon.hp ;
+                enemyScore += pokemon.hp;
             }
         });
         return myScore - enemyScore;
@@ -485,16 +485,16 @@ class gameState {
             if(pokemon.hp <= 0) {
                 myScore += 0;
             } else {
-                myScore += (pokemon.hp / pokemon.maxHP) * 100
-                myScore += 1000
+                myScore += (pokemon.hp / pokemon.maxHP) * 100;
+                myScore += 10;
             }
         });
         this.enemyPokemonList.forEach(pokemon => {
             if(pokemon.hp <= 0) {
                 enemyScore += 0;
             } else {
-                enemyScore += pokemon.hp ;
-                enemyScore += 1000;
+                enemyScore += pokemon.hp;
+                enemyScore += 10;
             }
         });
         return myScore - enemyScore;
