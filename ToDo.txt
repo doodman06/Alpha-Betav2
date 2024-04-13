@@ -182,3 +182,7 @@ Did more testing. Changed Heuristic 1 to add 10 for every living pokemon instead
 
 4/13/2024
 Added heuristic 2 and 3.
+
+4/13/2024
+Added config JSDOC and updated jsDocConfig.
+Removed old commented code.

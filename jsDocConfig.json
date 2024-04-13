@@ -1,6 +1,6 @@
 {
     "source": {
         "include": [ "." ],
-        "exclude": [ "node_modules/", ".gitattributes", ".gitignore", "package.json", "package-lock.json", "README.md", "Team1.json"]
+        "exclude": [ "node_modules/", ".gitattributes", ".gitignore", "package.json", "package-lock.json", "README.md", "Teams/", "Logs/"]
     }
 }

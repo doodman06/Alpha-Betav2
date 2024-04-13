@@ -25,15 +25,7 @@ tempList.forEach(pokemon => {
     battleManager.gameState.myPokemonList.push(pokemon);
 }
 );
-/* battleManager.gameState.myPokemonList.forEach(pokemon => {
-    var statBoosts = pokemon.statBoosts;
-    var pp = pokemon.pp;
-    
-    pokemon = new myPokemon(pokemon.name, pokemon.hp + '/' + pokemon.maxHP, pokemon.moves, [pokemon.atk, pokemon.def, pokemon.spa, pokemon.spd, pokemon.spe], pokemon.pos);
-    pokemon.setStatBoost(statBoosts);
-    pokemon.setPPList(pp);
-}
-); */
+
 var tempList = battleManager.gameState.enemyPokemonList;
 battleManager.gameState.enemyPokemonList = [];
 tempList.forEach(pokemon => {
@@ -43,12 +35,7 @@ tempList.forEach(pokemon => {
     battleManager.gameState.enemyPokemonList.push(pokemon);
 }
 );
-/* battleManager.gameState.enemyPokemonList.forEach(pokemon => {
-    var statBoosts = pokemon.statBoosts;
-    pokemon = new enemyPokemon(pokemon.name);
-    pokemon.setStatBoost(statBoosts);
-}
-); */
+
 var move = battleManager.chooseMove();
 
 parentPort.postMessage(move);
