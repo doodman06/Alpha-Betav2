@@ -447,11 +447,15 @@ class gameState {
             return this.evaluateState0();
         } else if(heuristic == 1) {
             return this.evaluateState1();
+        } else if(heuristic == 2) {
+            return this.evaluateState2();
+        } else if(heuristic == 3) {
+            return this.evaluateState3();
         }
     }
 
     /**
-     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 0
+     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 0(HP Heuristic)
      * @returns {number} the score of the current game state
      */
     evaluateState0() {  
@@ -475,7 +479,7 @@ class gameState {
     }
 
     /**
-     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 1
+     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 1(Living Pokemon Heuristic)
      * @returns {number} the score of the current game state
      */
     evaluateState1() {
@@ -495,6 +499,58 @@ class gameState {
             } else {
                 enemyScore += pokemon.hp;
                 enemyScore += 10;
+            }
+        });
+        return myScore - enemyScore;
+    }
+
+    /**
+     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 2(Offensive Focus Heuristic)
+     * @returns {number} the score of the current game state
+     */
+    evaluateState2() {
+        var myScore = 0;
+        var enemyScore = 0;
+        this.myPokemonList.forEach(pokemon => {
+            if(pokemon.hp <= 0) {
+                myScore += 0;
+            } else {
+                myScore += (pokemon.hp / pokemon.maxHP) * 95;
+                myScore += 5;
+            }
+        });
+        this.enemyPokemonList.forEach(pokemon => {
+            if(pokemon.hp <= 0) {
+                enemyScore += 0;
+            } else {
+                enemyScore += pokemon.hp * 1.05;
+                enemyScore += 15;
+            }
+        });
+        return myScore - enemyScore;
+    }
+
+     /**
+     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 3(Defensive Focus Heuristic)
+     * @returns {number} the score of the current game state
+     */
+     evaluateState3() {
+        var myScore = 0;
+        var enemyScore = 0;
+        this.myPokemonList.forEach(pokemon => {
+            if(pokemon.hp <= 0) {
+                myScore += 0;
+            } else {
+                myScore += (pokemon.hp / pokemon.maxHP) * 105;
+                myScore += 15;
+            }
+        });
+        this.enemyPokemonList.forEach(pokemon => {
+            if(pokemon.hp <= 0) {
+                enemyScore += 0;
+            } else {
+                enemyScore += pokemon.hp * 0.95;
+                enemyScore += 5;
             }
         });
         return myScore - enemyScore;

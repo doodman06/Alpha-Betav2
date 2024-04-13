@@ -179,3 +179,6 @@ Did tests against random player.
 
 4/11/2024
 Did more testing. Changed Heuristic 1 to add 10 for every living pokemon instead of 1000, much more reasonable.
+
+4/13/2024
+Added heuristic 2 and 3.
