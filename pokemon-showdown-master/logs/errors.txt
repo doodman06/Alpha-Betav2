@@ -1,0 +1,56 @@
+
+Error [ERR_IPC_DISCONNECTED]: IPC channel is already disconnected
+    at target.disconnect (node:internal/child_process:905:26)
+    at QueryProcessWrapper.destroy (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:209:18)
+    at QueryProcessWrapper.release (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:197:12)
+    at SQLDatabaseManager.releaseCrashed (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:412:19)
+    at ChildProcess.<anonymous> (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:471:50)
+    at ChildProcess.emit (node:events:518:28)
+    at ChildProcess.emit (node:domain:488:12)
+    at finish (node:internal/child_process:935:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
+
+Error [ERR_IPC_DISCONNECTED]: IPC channel is already disconnected
+    at target.disconnect (node:internal/child_process:905:26)
+    at QueryProcessWrapper.destroy (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:209:18)
+    at QueryProcessWrapper.release (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:197:12)
+    at SQLDatabaseManager.releaseCrashed (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:412:19)
+    at ChildProcess.<anonymous> (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:471:50)
+    at ChildProcess.emit (node:events:518:28)
+    at ChildProcess.emit (node:domain:488:12)
+    at finish (node:internal/child_process:935:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
+
+Error [ERR_IPC_DISCONNECTED]: IPC channel is already disconnected
+    at target.disconnect (node:internal/child_process:905:26)
+    at QueryProcessWrapper.destroy (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:209:18)
+    at QueryProcessWrapper.release (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:197:12)
+    at SQLDatabaseManager.releaseCrashed (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:412:19)
+    at ChildProcess.<anonymous> (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:471:50)
+    at ChildProcess.emit (node:events:518:28)
+    at ChildProcess.emit (node:domain:488:12)
+    at finish (node:internal/child_process:935:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
+
+Error [ERR_IPC_DISCONNECTED]: IPC channel is already disconnected
+    at target.disconnect (node:internal/child_process:905:26)
+    at QueryProcessWrapper.destroy (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:209:18)
+    at QueryProcessWrapper.release (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:197:12)
+    at SQLDatabaseManager.releaseCrashed (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:412:19)
+    at ChildProcess.<anonymous> (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:471:50)
+    at ChildProcess.emit (node:events:518:28)
+    at ChildProcess.emit (node:domain:488:12)
+    at finish (node:internal/child_process:935:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
+
+Error [ERR_IPC_DISCONNECTED]: IPC channel is already disconnected
+    at new NodeError (node:internal/errors:405:5)
+    at target.disconnect (node:internal/child_process:898:26)
+    at QueryProcessWrapper.destroy (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:209:18)
+    at QueryProcessWrapper.release (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:197:12)
+    at SQLDatabaseManager.releaseCrashed (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:412:19)
+    at ChildProcess.<anonymous> (C:\Users\daria\Downloads\pokemon-showdown-master\pokemon-showdown-master\dist\lib\process-manager.js:471:50)
+    at ChildProcess.emit (node:events:517:28)
+    at ChildProcess.emit (node:domain:489:12)
+    at finish (node:internal/child_process:928:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
