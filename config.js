@@ -1,6 +1,6 @@
 /**
  * Attribution:
- * Part of this config.js file (Liness 8 - 49) is from https://github.com/TalkTakesTime/Pokemon-Showdown-Bot/blob/master/config-example.js
+ * Part of this config.js file is from https://github.com/TalkTakesTime/Pokemon-Showdown-Bot/blob/master/config-example.js
  * It was taken from this project to simplify the process of connecting to the server.
  * Is was edited to connect using the bot's credentials.
  */
@@ -56,7 +56,7 @@ exports.debuglevel = 3;
 /**
  * @type {number} depth - The depth of the Alpha-Beta search algorithm, determines how many moves the bot will look ahead.
  */
-exports.depth = 4;
+exports.depth = 2;
 
 /**
  * @type {boolean} transpositionTable - Whether or not to use a transposition table to store previously calculated positions.
@@ -70,7 +70,7 @@ exports.transpositionTable = true;
 exports.moveOrdering = true;
 
 /**
- * @type {boolean} deterministic - Whether or not the bot should use deterministic simulations when simulation the effects of moves on game states.
+ * @type {boolean} deterministic - Whether or not the bot should use deterministic simulations when simulating the effects of moves on game states.
  */
 exports.deterministic = true;
 
@@ -81,7 +81,7 @@ exports.deterministic = true;
  * 2 - Offensive Focus Heuristic
  * 3 - Defensive Focus Heuristic
  */
-exports.heuristic = 1;
+exports.heuristic = 0;
 
 /**
  * @type {boolean} logging - Whether or not to log the time taken to make each move into a file

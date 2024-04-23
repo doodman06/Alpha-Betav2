@@ -16,15 +16,13 @@
  * @license MIT license
  */
 
-var fs = require('fs');
 var http = require('http');
 var https = require('https');
 var url = require('url');
 const {Teams} = require('pokemon-showdown');
-var team = require('./Teams/Team2.json');
+var team = require('./Teams/Team1.json');
 const {Worker, isMainThread, parentPort, workerData} = require('worker_threads');
 var battlestarted = false;
-var enemysaved = false;
 var enemyName = [];
 var roomId;
 var gen;
@@ -93,21 +91,15 @@ exports.parse = {
 		for(let i = 0; i < spl.length; i++){
 			//both damaage and heal messages from the server contain the enemies new hp so we can use the same function to update the enemy
 			if((spl[i] == '-damage' || spl[i] == '-heal') && spl[i + 1].includes('p1')){
-				//battleManager.updateEnemy(spl[i + 1].split(' ')[1], spl[i + 2].split('/')[0]);
 				battleManager.updateFromTurn('-damage', spl[i + 1].split(' ')[1], spl[i + 2].split('/')[0]);
-				
 			}
 			if(spl[i] == "switch" && spl[i + 1].includes('p1')){
-				//battleManager.updateActiveEnemy(spl[i + 1].split(' ')[1]);
 				battleManager.updateFromTurn("switch", spl[i + 1].split(' ')[1]);
-				
 			}
 			if(spl[i] == "-boost" && spl[i + 1].includes('p1')){
-				//battleManager.updateEnemyBoost(spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
 				battleManager.updateFromTurn("-boost", spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
 			}
 			if(spl[i] == "-boost" && spl[i + 1].includes('p2')){
-				//battleManager.updateEnemyBoost(spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
 				battleManager.updateMyPokemonFromTurn("-boost", spl[i + 1].split(' ')[1], spl[i + 2], spl[i + 3].split('/')[0]);
 			}
 
@@ -121,16 +113,16 @@ exports.parse = {
 				roomId = null;
 				gen = null;
 				//code to switch teams each battle
-				numBattles++;
+				/* numBattles++;
 				if(numBattles == 1){
-					team = require('./Teams/Team3.json');
-				} else if(numBattles == 2){
-					team = require('./Teams/Team4.json');
-				} else {
 					team = require('./Teams/Team2.json');
+				} else if(numBattles == 2){
+					team = require('./Teams/Team3.json');
+				} else {
+					team = require('./Teams/Team4.json');
 					numBattles = 0;
 				}
-
+ 				*/
 			}
 
 
