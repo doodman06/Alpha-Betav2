@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: myPokemon.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: myPokemon.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const {Dex} = require('pokemon-showdown');
+
+/**
+ * Stores the AI's Pokemon
+ */
+class myPokemon {
+
+    /**
+     * Initializes a new myPokemon object
+     * @param {string} name the name of the pokemon
+     * @param {string} condition the condition of the pokemon (hp/maxHP)
+     * @param {string[]} moveList the list of moves the pokemon has
+     * @param {number[]} statsList the list of stats the pokemon has
+     */
+    constructor(name, condition, moveList, statsList, pos) {
+        let namespl = name.split(',');
+        
+        /**
+         * @type {string} the name of the pokemon
+         */
+        this.name = namespl[0];
+        
+        /**
+         * @type {string[]} the types of the pokemon
+         */
+        this.types = Dex.species.get(this.name).types;
+        
+        var spl = condition.split('/');
+        /**
+         * @type {number} the maximum hp of the pokemon
+         */
+        this.maxHP = parseInt(spl[1]);
+        
+        /**
+         * @type {number} the current hp of the pokemon
+         */
+        this.hp = parseInt(spl[0]);
+        
+        /**
+         * @type {number} the attack stat of the pokemon
+         */
+        this.atk = statsList.atk;
+        
+        /**
+         * @type {number} the defense stat of the pokemon
+         */
+        this.def = statsList.def;
+        
+        /**
+         * @type {number} the special attack stat of the pokemon
+         */
+        this.spa = statsList.spa;
+        
+        /**
+         * @type {number} the special defense stat of the pokemon
+         */
+        this.spd = statsList.spd;
+        
+        /**
+         * @type {number} the speed stat of the pokemon
+         */
+        this.spe = statsList.spe;
+        
+        /**
+         * @type {string[]} the list of moves the pokemon has
+         */
+        this.moves = moveList;
+        
+        /**
+         * @type {number} the position of the pokemon in the team
+         */
+        this.pos = pos;
+
+        /**
+         * @type {boolean} whether the pokemon is alive or not
+         */
+        this.alive;
+        
+        if(!condition){
+            this.alive = false;
+        } else {
+            this.alive = true;
+        }
+        if(this.hp == 0){
+            this.alive = false;
+        }
+        /**
+         * @type {Object} the stat boosts of the pokemon
+         */
+        this.statBoosts = {atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+        /**
+         * @type {number[]} the pp of the moves the pokemon has
+         */
+        this.pp = [];
+        this.moves.forEach(move => {
+            const moveData = Dex.moves.get(move);
+            this.pp.push(moveData.pp);
+        });
+    };
+
+    /**
+     * sets the pp of a move
+     * @param {number} pp the new pp of the move
+     * @param {string} move name of the move
+     */
+    setPP(pp, move){
+        var i = this.moves.indexOf(move);
+        this.pp[i] = pp;
+    }
+
+    /**
+     * updates a pokemon's stats
+     * @param {string} name the name of the pokemon
+     * @param {string} condition the condition of the pokemon (hp/maxHP)
+     * @param {number} pos the position of the pokemon in the team
+     */
+    update(name, condition, pos) {
+        let namespl = name.split(',');
+        this.name = namespl[0];
+        this.types = Dex.species.get(this.name).types;
+        var spl = condition.split('/');
+        var maxHP = parseInt(spl[1]);
+        var currenthp = parseInt(spl[0]);
+        this.maxHP = maxHP;
+        this.hp = currenthp;
+        this.pos = pos;
+        if(!condition){
+            this.alive = false;
+        } else {
+            this.alive = true;
+        }
+        if(this.hp == 0){
+            this.alive = false;
+        }
+        return this;
+    
+    }
+
+    /**
+     * adds a stat boost to the pokemon
+     * @param {string} stat the stat to be boosted
+     * @param {number} boost the number of stages to be boosted can be negative or positive
+     */
+    addStatBoost(stat, boost) {
+        //stat is unrelated
+        if(!this.statBoosts[stat]) {
+            return;
+        }
+        this.statBoosts[stat] += boost;
+        if(this.statBoosts[stat] > 6) {
+            this.statBoosts[stat] = 6;
+        }
+        if(this.statBoosts[stat] &lt; -6) {
+            this.statBoosts[stat] = -6;
+        }
+    }
+
+    /**
+     * sets the stat boosts of the pokemon
+     * @param {Json} statBoosts a JSON object containing the stat boosts
+     */
+    setStatBoost(statBoosts) {
+        this.statBoosts = statBoosts;
+    }
+
+    /**
+     * Searches for a move and decrements its pp by 1
+     * @param {string} move the name of the move
+     */
+    decrementPP(move) {
+        for(let i = 0; i &lt; this.moves.length; i++) {
+            if(this.moves[i] == move) {
+                this.pp[i] = this.pp[i] - 1;
+            }
+        }
+    }
+    
+    /**
+     * gets the pp of a move
+     * @param {string} move the name of the move
+     * @returns {number} the pp of the move
+     */
+    getPP(move) {
+        for(let i = 0; i &lt; this.moves.length; i++) {
+            if(this.moves[i] == move) {
+                return this.pp[i];
+            }
+        }
+    }
+
+    /**
+     * sets the pp of all moves
+     * @param {number[]} pp the new pp of all moves
+     */
+    setPPList(pp) {
+        this.pp = pp;
+    }
+
+    /**
+     * clones the current myPokemon object without reference
+     * @returns {myPokemon} a new myPokemon object with the same values as the current one
+     */
+    clone() {
+        var pokemon = new myPokemon(this.name, this.hp + '/' + this.maxHP, this.moves, [this.atk, this.def, this.spa, this.spd, this.spe], this.pos);
+        pokemon.setStatBoost(this.statBoosts);
+        pokemon.setPPList(structuredClone(this.pp));
+        return pokemon;
+    }
+
+};
+
+module.exports = myPokemon;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BattleManager.html">BattleManager</a></li><li><a href="TranspositionTable.html">TranspositionTable</a></li><li><a href="enemyPokemon.html">enemyPokemon</a></li><li><a href="gameState.html">gameState</a></li><li><a href="myPokemon.html">myPokemon</a></li></ul><h3>Global</h3><ul><li><a href="global.html#MESSAGE_THROTTLE">MESSAGE_THROTTLE</a></li><li><a href="global.html#debuglevel">debuglevel</a></li><li><a href="global.html#depth">depth</a></li><li><a href="global.html#deterministic">deterministic</a></li><li><a href="global.html#heuristic">heuristic</a></li><li><a href="global.html#http">http</a></li><li><a href="global.html#logging">logging</a></li><li><a href="global.html#moveOrdering">moveOrdering</a></li><li><a href="global.html#nick">nick</a></li><li><a href="global.html#pass">pass</a></li><li><a href="global.html#port">port</a></li><li><a href="global.html#secprotocols">secprotocols</a></li><li><a href="global.html#server">server</a></li><li><a href="global.html#serverid">serverid</a></li><li><a href="global.html#transpositionTable">transpositionTable</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Apr 23 2024 15:02:49 GMT+0100 (British Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: gameState.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: gameState.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const {Dex} = require('pokemon-showdown');
+const {calculate, Pokemon, Move, Generations} = require('@smogon/calc');
+const pokemon = require('pokemon-showdown/dist/sim/pokemon');
+const myPokemon = require('./myPokemon');
+const enemyPokemon = require('./enemyPokemon');
+/**
+ * Stores the game state
+ */
+class gameState {
+    
+    /**
+     * Initializes a new gameState object
+     */
+    constructor() {
+        //need to create new objects withour reference to old ones
+        /**
+         * @type {boolean} whether a pokemon must be switched to
+         */
+        this.forceSwitch = false;
+
+        /**
+         * @type {boolean} whether the enemy must be switched to a different pokemon
+         */
+        this.enemyForceSwitch = false;
+
+        /**
+         * @type {myPokemon[]} the list of the AI's pokemon
+         */
+        this.myPokemonList = [];
+        /**
+         * @type {enemyPokemon[]} the list of the enemy's pokemon
+         */
+        this.enemyPokemonList = [];
+        /**
+         * @type {string} the name of the currently active enemy pokemon
+         */
+        this.activeEnemy = null;
+        /**
+         * @type {Generations} the generation of the current battle
+         */
+        this.gen = generation
+
+
+    }
+
+    /**
+     * sets all the variables of the game state
+     * @param {boolean} forceSwitch a boolean value of whether a pokemon must be switched to
+     * @param {boolean} enemyForceSwitch a boolean value of whether the enemy must switch to a different pokemon
+     * @param {myPokemon[]} myPokemonList list of the AI's pokemon
+     * @param {enemyPokemon[]} enemyPokemonList list of the enemy's pokemon
+     * @param {string} activeEnemy the name of the currently active enemy pokemon
+     * @param {Generations} gen the generation of the current battle
+     */
+    setAll(forceSwitch, enemyForceSwitch, myPokemonList, enemyPokemonList, activeEnemy, gen) {
+        this.forceSwitch = forceSwitch;
+        this.enemyForceSwitch = enemyForceSwitch;
+        this.myPokemonList = myPokemonList;
+        this.enemyPokemonList = enemyPokemonList;
+        this.activeEnemy = activeEnemy;
+        this.gen = gen;
+    }
+
+    //setters and getters for variables
+
+    /**
+     * sets the list of the AI's pokemon
+     * @param {myPokemon[]} myPokemonList list of the AI's pokemon
+     */
+    setMyPokemonList(myPokemonList) {
+        this.myPokemonList = myPokemonList;
+    }
+    
+    /**
+     * adds a pokemon to the AI's pokemon list
+     * @param {myPokemon} pokemon a pokemon to be added to the AI's pokemon list
+     */
+    addMyPokemon(pokemon) {
+        this.myPokemonList.push(pokemon);
+    }
+
+    /**
+     * adds a pokemon to the enemy's pokemon list
+     * @param {enemyPokemon} pokemon a pokemon to be added to the enemy's pokemon list
+     */
+    addEnemyPokemon(pokemon) {
+        this.enemyPokemonList.push(pokemon);
+    }
+
+    /**
+     * sets the list of the enemy's pokemon
+     * @param {enemyPokemon[]} enemyPokemonList a list of the enemy's pokemon
+     */
+    setEnemyPokemonList(enemyPokemonList) {
+        this.enemyPokemonList = enemyPokemonList;
+    }
+
+    /**
+     * sets the active enemy pokemon
+     * @param {string} activeEnemy the name of the currently active enemy pokemon
+     */
+    setActiveEnemy(activeEnemy) {
+        this.activeEnemy = activeEnemy;
+    }
+
+    /**
+     * gets the active enemy pokemon
+     * @returns {enemyPokemon} the active enemy pokemon
+     */
+    getActiveEnemy() {
+        for(let i = 0; i &lt; this.enemyPokemonList.length; i++) {
+            if(this.enemyPokemonList[i].name == this.activeEnemy) {
+                return this.enemyPokemonList[i];
+            }
+        }
+    }
+
+    /**
+     * updates the Ai's pokemon list from JSON data
+     * @param {Json} Json JSON data received from the server
+     */
+    updateFromJSON(Json) {
+        var i = 0;
+        Json.side.pokemon.forEach(pokemon => {
+            if(!this.myPokemonExists(pokemon.details.split(',')[0])) {
+                this.addMyPokemon(new myPokemon(pokemon.details, pokemon.condition, pokemon.moves, pokemon.stats, i));
+            } else {
+                this.updateMyPokemonFromJSON(pokemon.details, pokemon.condition, i);
+                
+            }
+            i++;
+        });
+        this.myPokemonList.sort(this.order);
+        
+    }
+
+    /**
+     * check if the move stuggle is in the AI's pokemon's move list and set its PP to 100000 (never runs out)
+     * @param {JSON} Json the JSON data received from the server
+     */
+    checkStruggleFromJSON(Json) {
+        var moves = [];
+        if(!('active' in Json)) return;
+        Json.active[0].moves.forEach( move => {
+            moves.push(move.id);
+        });
+        if(moves.length > 0) {
+            for(let i = 0; i &lt; this.myPokemonList.length; i++){
+                if(moves[i] == 'struggle') {
+                    this.myPokemonList[0].moves = moves;
+                    this.myPokemonList[0].setPP(100000, 'struggle');
+                }
+            }
+        }
+        
+    }
+
+    /**
+     * used for sorting the pokemon list
+     * @param {number} a the position of the first pokemon
+     * @param {number} b the position of the second pokemon
+     * @returns {number} the difference between the positions of the two pokemon
+     */
+    order(a, b){
+        return a.pos - b.pos;
+    }
+
+    /**
+     * updates the Ai's pokemon from JSON its data
+     * @param {string} details the details of the pokemon (including name and level)
+     * @param {string} condition the condition of the pokemon (hp/maxHP)
+     * @param {number} pos the position of the pokemon in the team
+     */
+    updateMyPokemonFromJSON(details, condition, pos) {
+        let namespl = details.split(',');
+        var name = namespl[0];
+        for(let i = 0; i &lt; this.myPokemonList.length; i++) {
+            if(this.myPokemonList[i].name == name) {
+                this.myPokemonList[i].update(details, condition, pos);
+            }
+        }
+    }
+
+    //update PP of the active pokemon
+    /**
+     * updates the PP of the active pokemon from JSON data
+     * @param {Json} jsonData the JSON data received from the server
+     */
+    updateMyPP(jsonData) {
+        if('active' in jsonData) {
+            jsonData.active[0].moves.forEach( moves => {
+                this.myPokemonList[0].setPP(moves.pp, moves.id);
+                
+            });
+        } 
+    }
+
+    /**
+     * checks if a pokemon is in the AI's pokemon list
+     * @param {string} pokemon the name of the pokemon
+     * @returns {boolean} whether the pokemon is in the list
+     */
+    myPokemonExists(pokemon) {  
+        for(let i = 0; i &lt; this.myPokemonList.length; i++) {
+            if(this.myPokemonList[i].name == pokemon) {
+                return true;
+            }
+        }
+    }
+
+    /**
+     * gets the list of possible moves the enemy can make
+     * @returns {string[]} the list of possible moves the enemy can make
+     */
+    getPossibleEnemyMoves() {
+        var moves = [];
+        var enemyPokemon = this.getActiveEnemy();
+        if(!this.isEnemyForceSwitch()) {
+            var learnsetData = Dex.species.getLearnsetData(Dex.toID(enemyPokemon.name));  
+            var moveList = [];
+            moveList = Object.keys(learnsetData.learnset);
+            for(let i = 0; i &lt; moveList.length; i++) {
+                var newMove = "|/choose move " + moveList[i];
+                moves.push(newMove);
+            }
+        }
+            
+        //enemy switches to a different pokmeon
+        for(let i = 0; i &lt; this.enemyPokemonList; i++) {
+            if(this.enemyPokemonList[i].name != enemyPokemon.name &amp;&amp; this.enemyPokemonList[i].alive &amp;&amp; this.enemyPokemonList[i].hp > 0) {
+                var newMove = "|/choose switch " + this.enemyPokemonList[i].name;
+                moves.push(newMove);
+            }
+        }
+        return moves;
+    }
+
+    /**
+     * sets the pokemon at a certain position in the list
+     * @param {number} pos the position of the pokemon in the list
+     * @param {string} pokemon the name of the pokemon
+     */
+    setMyPokemonListPos(pos, pokemon) {
+        this.myPokemonList[pos] = pokemon;
+    }
+
+    /**
+     * simulates the enemy's move.
+     * Always uses the worst result for the AI.
+     * @param {string} enemyMove the name of the move used by the enemy
+     * @param {boolean} deterministic whether the move damage calculation should be deterministic
+     */
+    enemyMove(enemyMove, deterministic) {
+        var myPokemon = this.getMyActive();
+        var enemyPokemon = this.getActiveEnemy();
+        const result = calculate(
+            this.gen,
+            new Pokemon(this.gen, enemyPokemon.name, {
+                boosts: enemyPokemon.statBoosts
+            }),
+            new Pokemon(this.gen, this.getMyActive().name, {
+                boosts: this.getMyActive().statBoosts
+            }),
+            new Move(this.gen, enemyMove)
+        )
+        var damage;
+        if(Array.isArray(result.damage)) {
+            if(deterministic)
+            {
+            damage = result.damage[result.damage.length - 1];
+            } else {
+                damage = result.damage[Math.floor(Math.random() * result.damage.length)];
+            }
+        }  else {
+            damage = result.damage;
+        }
+    
+        this.updateMyPokemon(this.getMyActive().name, myPokemon.hp - damage);
+
+        var dexMove = Dex.moves.get(enemyMove);
+        if(dexMove.boosts) {
+            for(var key in dexMove.boosts) {
+                this.updateEnemyBoost(enemyPokemon.name, key, dexMove.boosts[key]);
+            }
+        }
+        if(Object.hasOwn(dexMove, 'self')){
+            if(Object.hasOwn(dexMove.self, 'boosts')) {
+                for(var key in dexMove.self.boosts) {
+                    this.updateEnemyBoost(enemyPokemon.name, key, dexMove.self.boosts[key]);
+                }
+            }
+        }
+        if(this.myPokemonList[0].hp &lt;= 0) {
+            this.myPokemonList[0].alive = false;
+            this.setForceSwitch(true);
+        } 
+    }
+
+
+    /**
+     * simulates the AI's move.
+     * Always uses the worst result for the AI.
+     * @param {string} myMove the name of the move used by the AI
+     * @param {boolean} deterministic whether the move damage calculation should be deterministic
+     */
+    myMove(myMove, deterministic) {
+        var enemyPokemon = this.getActiveEnemy();
+        const result2 = calculate(  
+            this.gen,
+            new Pokemon(this.gen, this.getMyActive().name, {
+                    boosts: this.getMyActive().statBoosts
+            }),
+            new Pokemon(this.gen, enemyPokemon.name, {
+                boosts: enemyPokemon.statBoosts
+            }),
+            new Move(this.gen, myMove)
+        )
+        var damage2;
+        if(Array.isArray(result2.damage)) {
+            if(deterministic) {
+                damage2 = result2.damage[0];
+            } else {
+                damage2 = result2.damage[Math.floor(Math.random() * result2.damage.length)];
+            }
+        }  else {
+            damage2 = result2.damage;
+        }
+        this.decrementPP(myMove);
+        this.updateEnemy(enemyPokemon.name, enemyPokemon.hp - (damage2 / Dex.species.get(enemyPokemon.name).baseStats.hp));
+        var dexMove = Dex.moves.get(myMove);
+        if(dexMove.boosts) {
+            for(var key in dexMove.boosts) {
+                this.updateMyBoost(this.getMyActive().name, key, dexMove.boosts[key]);
+            }
+        }
+        if(Object.hasOwn(dexMove, 'self')){
+            if(Object.hasOwn(dexMove.self, 'boosts')) {
+                for(var key in dexMove.self.boosts) {
+                    this.updateMyBoost(this.getMyActive().name, key, dexMove.self.boosts[key]);
+                }
+            }
+        }
+        if(this.enemyPokemonList[0].hp &lt;= 0) {
+            this.enemyPokemonList[0].alive = false;
+            this.setEnemyForceSwitch(true);
+        }  
+
+    }
+
+   
+
+
+
+    /**
+     * Clones the current gameState object without reference
+     * @returns {gameState} a new gameState object with the same values as the current one
+     */
+    clone() {
+        var newGameState = new gameState();
+        newGameState.myPokemonList = [];
+        for(let i = 0; i &lt; this.myPokemonList.length; i++) {
+            newGameState.myPokemonList.push(this.myPokemonList[i].clone());
+        }
+        for(let i = 0; i &lt; this.enemyPokemonList.length; i++) {
+            newGameState.enemyPokemonList.push(this.enemyPokemonList[i].clone());
+        }
+        newGameState.activeEnemy = JSON.parse(JSON.stringify(this.activeEnemy));
+        return newGameState;
+    }
+
+    /**
+     * sets the forceSwitch variable
+     * @param {boolean} bool the value to set forceSwitch to
+     */
+    setForceSwitch(bool) {
+        this.forceSwitch = bool;
+    }
+
+    /**
+     * sets the enemyForceSwitch variable
+     * @param {boolean} bool the value to set enemyForceSwitch to
+     */
+    setEnemyForceSwitch(bool) {
+        this.enemyForceSwitch = bool;
+    }
+
+    /**
+     * gets the a Boolean value of whether a Pokemon must be switched to
+     * @returns {boolean} whether a Pokemon must be switched to
+     */
+    isForceSwitch() {
+        return this.forceSwitch;
+    }
+
+    /**
+     * gets the a Boolean value of whether the enemy must switch to a different pokemon
+     * @returns {boolean} whether the enemy must switch to a different pokemon
+     */
+    isEnemyForceSwitch() {
+        return this.enemyForceSwitch;
+    }
+
+    /**
+     * decrements the pp of a move by 1
+     * @param {string} move the name of the move
+     */
+    decrementPP(move) {
+        this.myPokemonList[0].decrementPP(move);
+    }
+
+    /**
+     * Checks if a move is usable
+     * @param {string} move the name of the move
+     * @returns {boolean} whether the move is usable
+     */
+    isMoveUsable(move) {
+        if(this.myPokemonList[0].getPP(move) > 0){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Prints the the details of the game state
+     * Used for debugging
+     */
+    printState() {  
+        console.log("My Pokemon");
+        this.myPokemonList.forEach(pokemon => {
+            console.log(pokemon.name + " " + pokemon.hp + "/" + pokemon.maxHP);
+        });
+        console.log("Enemy Pokemon");
+        this.enemyPokemonList.forEach(pokemon => {
+            console.log(pokemon.name + " " + pokemon.hp + "/" + pokemon.maxHP);
+        });
+        console.log("Active Enemy: " + this.activeEnemy);
+    }
+
+    /**
+     * Evaluates the current game state for Alpha Beta Pruning
+     * @param {number} heuristic the the id of the heuristic to be used
+     * @returns {number} the score of the current game state
+     */
+    evaluateState(heuristic) {
+        if(heuristic == 0) {
+            return this.evaluateState0();
+        } else if(heuristic == 1) {
+            return this.evaluateState1();
+        } else if(heuristic == 2) {
+            return this.evaluateState2();
+        } else if(heuristic == 3) {
+            return this.evaluateState3();
+        }
+    }
+
+    /**
+     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 0(HP Heuristic)
+     * @returns {number} the score of the current game state
+     */
+    evaluateState0() {  
+        var myScore = 0;
+        var enemyScore = 0;
+        this.myPokemonList.forEach(pokemon => {
+            if(pokemon.hp &lt;= 0) {
+                myScore += 0;
+            } else {
+                myScore += (pokemon.hp / pokemon.maxHP) * 100;
+            }
+        });
+        this.enemyPokemonList.forEach(pokemon => {
+            if(pokemon.hp &lt;= 0) {
+                enemyScore += 0;
+            } else {
+                enemyScore += pokemon.hp;
+            }
+        });
+        return myScore - enemyScore;
+    }
+
+    /**
+     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 1(Living Pokemon Heuristic)
+     * @returns {number} the score of the current game state
+     */
+    evaluateState1() {
+        var myScore = 0;
+        var enemyScore = 0;
+        this.myPokemonList.forEach(pokemon => {
+            if(pokemon.hp &lt;= 0) {
+                myScore += 0;
+            } else {
+                myScore += (pokemon.hp / pokemon.maxHP) * 100;
+                myScore += 10;
+            }
+        });
+        this.enemyPokemonList.forEach(pokemon => {
+            if(pokemon.hp &lt;= 0) {
+                enemyScore += 0;
+            } else {
+                enemyScore += pokemon.hp;
+                enemyScore += 10;
+            }
+        });
+        return myScore - enemyScore;
+    }
+
+    /**
+     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 2(Offensive Focus Heuristic)
+     * @returns {number} the score of the current game state
+     */
+    evaluateState2() {
+        var myScore = 0;
+        var enemyScore = 0;
+        this.myPokemonList.forEach(pokemon => {
+            if(pokemon.hp &lt;= 0) {
+                myScore += 0;
+            } else {
+                myScore += (pokemon.hp / pokemon.maxHP) * 95;
+                myScore += 5;
+            }
+        });
+        this.enemyPokemonList.forEach(pokemon => {
+            if(pokemon.hp &lt;= 0) {
+                enemyScore += 0;
+            } else {
+                enemyScore += pokemon.hp * 1.05;
+                enemyScore += 15;
+            }
+        });
+        return myScore - enemyScore;
+    }
+
+     /**
+     * Evaluates the current game state for Alpha Beta Pruning based on heruistic 3(Defensive Focus Heuristic)
+     * @returns {number} the score of the current game state
+     */
+     evaluateState3() {
+        var myScore = 0;
+        var enemyScore = 0;
+        this.myPokemonList.forEach(pokemon => {
+            if(pokemon.hp &lt;= 0) {
+                myScore += 0;
+            } else {
+                myScore += (pokemon.hp / pokemon.maxHP) * 105;
+                myScore += 15;
+            }
+        });
+        this.enemyPokemonList.forEach(pokemon => {
+            if(pokemon.hp &lt;= 0) {
+                enemyScore += 0;
+            } else {
+                enemyScore += pokemon.hp * 0.95;
+                enemyScore += 5;
+            }
+        });
+        return myScore - enemyScore;
+    }
+
+    /**
+     * Updates an enemy pokemon's HP
+     * @param {string} pokemon the name of the pokemon
+     * @param {number} newHP the new HP of the pokemon
+     */
+    updateEnemy(pokemon, newHP) {
+        this.enemyPokemonList.forEach(enemy => {
+            if(enemy.name == pokemon) {
+                enemy.hp = parseInt(newHP);
+            }
+        });
+    }
+
+    /**
+     * Switches the active Pokemon to a random one
+     * Used for testing
+     */
+    switchMyActive() {
+        var newActive;
+        newActive = this.myPokemonList.shift();
+        this.myPokemonList.push(newActive);
+    }
+
+    /**
+     * Switches the AI's active pokemon
+     * @param {string} pokemon the name of the pokemon
+     */
+    switchMyActiveTo(pokemon) {
+        var newActive;
+        this.myPokemonList.forEach(myPokemon => {
+            if(myPokemon.name == pokemon) {
+                newActive = myPokemon;
+            }
+        });
+        var index = this.myPokemonList.indexOf(newActive);
+        this.myPokemonList.splice(index, 1);
+        this.myPokemonList.unshift(newActive);
+    }
+
+    /**
+     * Switches the enemy's active pokemon
+     * @param {string} pokemon the name of the pokemon
+     */
+    switchEnemyActiveTo(pokemon) {
+        this.activeEnemy = pokemon;
+
+    }
+
+    /**
+     * Switches the active enemy Pokemon to a random one
+     * Used for testing
+     */
+    switchEnemyActive() {
+        var newActive;
+        newActive = this.enemyPokemonList.shift();
+        this.enemyPokemonList.push(newActive);
+    }
+
+     /**
+     * Switches the active enemy pokemon
+     * @param {string} pokemon Name of the new active enemy pokemon
+     */
+    updateActiveEnemy(pokemon) {
+        this.enemyPokemonList.forEach(enemy => {
+            if(enemy.name == pokemon) {
+                this.activeEnemy = enemy.name;
+            }
+        });
+    }
+
+    /**
+     * gets the active pokemon of the AI
+     * @returns {myPokemon} the active pokemon of the AI
+     */
+    getMyActive() {
+        return this.myPokemonList[0];
+    }
+
+    /**
+     * gets a boolean value of whether the AI's active pokemon is alive
+     * @returns {boolean} whether the AI's active pokemon is alive
+     */
+    isMyActiveAlive() {
+        if(this.myPokemonList[0].hp > 0) {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * updates the HP of the AI's  pokemon
+     * @param {string} pokemon the name of the pokemon
+     * @param {number} newHP the new HP of the pokemon
+     */
+    updateMyPokemon(pokemon, newHP) {
+        this.myPokemonList.forEach(myPokemon => {
+            if(myPokemon.name == pokemon) {
+                myPokemon.hp = parseInt(newHP);
+            }
+        });
+    }
+
+    /**
+     * Updates the stat boost of the enemy pokemon
+     * @param {string} pokemon Name of the enemy pokemon
+     * @param {string} stat Stat to be updated
+     * @param {int} newBoost Number of boost stages to be added
+     */
+    updateEnemyBoost(pokemon, stat, newBoost) {
+        this.enemyPokemonList.forEach(enemy => {
+            if(enemy.name == pokemon) {
+                enemy.addStatBoost(stat, parseInt(newBoost));
+            }
+        });
+    }
+
+    /**
+     * Updates the stat boost of the AI's pokemon
+     * @param {string} pokemon Name of the AI's pokemon
+     * @param {string} stat Stat to be updated
+     * @param {int} newBoost Number of boost stages to be added
+     */
+    updateMyBoost(pokemon, stat, newBoost) {
+        this.myPokemonList.forEach(myPokemon => {
+            if(myPokemon.name == pokemon) {
+                myPokemon.addStatBoost(stat, parseInt(newBoost));
+            }
+        });
+    }
+}
+
+module.exports = gameState;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="BattleManager.html">BattleManager</a></li><li><a href="TranspositionTable.html">TranspositionTable</a></li><li><a href="enemyPokemon.html">enemyPokemon</a></li><li><a href="gameState.html">gameState</a></li><li><a href="myPokemon.html">myPokemon</a></li></ul><h3>Global</h3><ul><li><a href="global.html#MESSAGE_THROTTLE">MESSAGE_THROTTLE</a></li><li><a href="global.html#debuglevel">debuglevel</a></li><li><a href="global.html#depth">depth</a></li><li><a href="global.html#deterministic">deterministic</a></li><li><a href="global.html#heuristic">heuristic</a></li><li><a href="global.html#http">http</a></li><li><a href="global.html#logging">logging</a></li><li><a href="global.html#moveOrdering">moveOrdering</a></li><li><a href="global.html#nick">nick</a></li><li><a href="global.html#pass">pass</a></li><li><a href="global.html#port">port</a></li><li><a href="global.html#secprotocols">secprotocols</a></li><li><a href="global.html#server">server</a></li><li><a href="global.html#serverid">serverid</a></li><li><a href="global.html#transpositionTable">transpositionTable</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Apr 23 2024 15:02:49 GMT+0100 (British Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
